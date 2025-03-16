@@ -22,6 +22,8 @@
             flex-direction: column;
             align-items: center;
             gap: 20px;
+            width: 90%;
+            max-width: 800px;
         }
 
         .navigation {
@@ -36,6 +38,7 @@
             padding: 12px;
             border-radius: 8px;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            z-index: 100;
         }
 
         .nav-button {
@@ -78,12 +81,13 @@
 
         .dots-container {
             display: grid;
-            grid-template-columns: repeat(40, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(12px, 1fr));
             gap: 5px;
             padding: 20px;
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            width: 100%;
         }
 
         .dot {
@@ -92,6 +96,49 @@
             border-radius: 50%;
             background-color: #ddd;
             transition: background-color 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                left: 50%;
+                bottom: 20px;
+                top: auto;
+                transform: translateX(-50%);
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 90%;
+                max-width: 400px;
+            }
+
+            .nav-button {
+                width: auto;
+                font-size: 10px;
+                padding: 6px 8px;
+            }
+
+            .nav-button:hover, .nav-button.active {
+                transform: translateY(-2px);
+            }
+
+            .dots-container {
+                grid-template-columns: repeat(auto-fit, minmax(10px, 1fr));
+                gap: 3px;
+            }
+
+            .dot {
+                width: 10px;
+                height: 10px;
+            }
+
+            .occupation-label {
+                font-size: 18px;
+                height: 40px;
+            }
+
+            .occupation-icon {
+                font-size: 24px;
+            }
         }
     </style>
 </head>
@@ -141,7 +188,7 @@
                         count: 11, 
                         color: '#0a1526',
                         startIndex: 100,
-                        icon: 'fa-crown'
+                        icon: 'fa-user-tie'
                     },
                     { 
                         name: 'CS, IT, Software', 
@@ -190,42 +237,42 @@
                     {
                         name: 'Police officers',
                         count: 4,
-                        color: '#0a2420',
+                        color: '#e8eef2',
                         startIndex: 450,
                         icon: 'fa-shield-halved'
                     },
                     {
                         name: 'Security guards',
                         count: 6,
-                        color: '#0a2420',
+                        color: '#e8eef2',
                         startIndex: 470,
                         icon: 'fa-user-shield'
                     },
                     {
                         name: 'Waitstaff',
                         count: 11,
-                        color: '#0a2420',
+                        color: '#e8eef2',
                         startIndex: 500,
                         icon: 'fa-utensils'
                     },
                     {
                         name: 'Janitors',
                         count: 14,
-                        color: '#0a2420',
+                        color: '#e8eef2',
                         startIndex: 530,
                         icon: 'fa-broom'
                     },
                     {
                         name: 'Hairdressers',
                         count: 4,
-                        color: '#0a2420',
+                        color: '#e8eef2',
                         startIndex: 560,
                         icon: 'fa-scissors'
                     },
                     {
                         name: 'Childcare workers',
                         count: 6,
-                        color: '#0a2420',
+                        color: '#e8eef2',
                         startIndex: 580,
                         icon: 'fa-child'
                     }
@@ -322,28 +369,28 @@
                     {
                         name: 'Bakers',
                         count: 2,
-                        color: '#2b0333',
+                        color: '#f2e8ed',
                         startIndex: 890,
                         icon: 'fa-bread-slice'
                     },
                     {
                         name: 'Stockers',
                         count: 10,
-                        color: '#2b0333',
+                        color: '#f2e8ed',
                         startIndex: 910,
                         icon: 'fa-box'
                     },
                     {
                         name: 'Taxi drivers',
                         count: 3,
-                        color: '#2b0333',
+                        color: '#f2e8ed',
                         startIndex: 930,
                         icon: 'fa-taxi'
                     },
                     {
                         name: 'Pilots and flight engineers',
                         count: 1,
-                        color: '#2b0333',
+                        color: '#f2e8ed',
                         startIndex: 950,
                         icon: 'fa-plane'
                     }
