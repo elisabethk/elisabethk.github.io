@@ -1,40 +1,464 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>US Workforce Distribution</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            min-height: 800vh;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
 
-<html>
+        .visualization-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
 
-    <head>
-        <link href="Styles/style.css" rel="stylesheet" type="text/css">
-    </head>
-    
-    <body>
-    
-        <h1> Hey there buttface </h1>
-        
-        <div>  
-        Click me hey!
+        .navigation {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .nav-button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: left;
+            transition: transform 0.2s;
+            width: 160px;
+            font-size: 12px;
+        }
+
+        .nav-button:hover {
+            transform: translateX(5px);
+        }
+
+        .nav-button.active {
+            transform: translateX(5px);
+            box-shadow: 3px 0 10px rgba(0,0,0,0.2);
+        }
+
+        .occupation-label {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: color 0.3s ease;
+        }
+
+        .occupation-icon {
+            font-size: 32px;
+            transition: color 0.3s ease;
+        }
+
+        .dots-container {
+            display: grid;
+            grid-template-columns: repeat(40, 1fr);
+            gap: 5px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ddd;
+            transition: background-color 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="occupation-label">
+            <i class="occupation-icon"></i>
+            <span class="label-text"></span>
         </div>
-        
-        <img src="Images/cat.png"/>
-        <p> ^ Also click this guy ^</p>
-        
-        <p>
-            Hey there butts
-        </p>
-        
-        <p>
-            No? Not you?
-        </p>
-        
-        <p>
-            My mistake.
-        </p>
-        
-        
-        
-        
-        
-        
-        <script src="Scripts/main.js"></script>
-    </body>
-    
+        <div class="dots-container"></div>
+    </div>
+    <div class="navigation">
+        <button class="nav-button" style="background-color: #db2b39;" data-section="1">
+            Managers and professionals
+        </button>
+        <button class="nav-button" style="background-color: #29335c;" data-section="2">
+            Service occupations
+        </button>
+        <button class="nav-button" style="background-color: #f3a712;" data-section="3">
+            Sales and office
+        </button>
+        <button class="nav-button" style="background-color: #f0cea0;" data-section="4">
+            Natural resources
+        </button>
+        <button class="nav-button" style="background-color: #534d41;" data-section="5">
+            Production and transportation
+        </button>
+    </div>
+    <script>
+        const mainCategories = [
+            {
+                name: 'All US Workers',
+                count: 1000,
+                color: '#ddd',
+                startIndex: 0,
+                icon: 'fa-users'
+            },
+            {
+                name: 'Managers and professionals',
+                count: 438,
+                color: '#db2b39',
+                startIndex: 0,
+                icon: 'fa-briefcase',
+                subcategories: [
+                    { 
+                        name: 'Chief Executives', 
+                        count: 11, 
+                        color: '#0a1526',
+                        startIndex: 100,
+                        icon: 'fa-crown'
+                    },
+                    { 
+                        name: 'CS, IT, Software', 
+                        count: 36, 
+                        color: '#0a1526',
+                        startIndex: 150,
+                        icon: 'fa-laptop-code'
+                    },
+                    { 
+                        name: 'Engineers', 
+                        count: 16, 
+                        color: '#0a1526',
+                        startIndex: 250,
+                        icon: 'fa-gear'
+                    },
+                    { 
+                        name: 'Scientists', 
+                        count: 6, 
+                        color: '#0a1526',
+                        startIndex: 300,
+                        icon: 'fa-flask'
+                    },
+                    { 
+                        name: 'Teachers', 
+                        count: 34, 
+                        color: '#0a1526',
+                        startIndex: 350,
+                        icon: 'fa-chalkboard-teacher'
+                    },
+                    { 
+                        name: 'Doctors', 
+                        count: 6, 
+                        color: '#0a1526',
+                        startIndex: 400,
+                        icon: 'fa-user-md'
+                    }
+                ]
+            },
+            {
+                name: 'Service occupations',
+                count: 165,
+                color: '#29335c',
+                startIndex: 438,
+                icon: 'fa-bell-concierge',
+                subcategories: [
+                    {
+                        name: 'Police officers',
+                        count: 4,
+                        color: '#0a2420',
+                        startIndex: 450,
+                        icon: 'fa-shield-halved'
+                    },
+                    {
+                        name: 'Security guards',
+                        count: 6,
+                        color: '#0a2420',
+                        startIndex: 470,
+                        icon: 'fa-user-shield'
+                    },
+                    {
+                        name: 'Waitstaff',
+                        count: 11,
+                        color: '#0a2420',
+                        startIndex: 500,
+                        icon: 'fa-utensils'
+                    },
+                    {
+                        name: 'Janitors',
+                        count: 14,
+                        color: '#0a2420',
+                        startIndex: 530,
+                        icon: 'fa-broom'
+                    },
+                    {
+                        name: 'Hairdressers',
+                        count: 4,
+                        color: '#0a2420',
+                        startIndex: 560,
+                        icon: 'fa-scissors'
+                    },
+                    {
+                        name: 'Childcare workers',
+                        count: 6,
+                        color: '#0a2420',
+                        startIndex: 580,
+                        icon: 'fa-child'
+                    }
+                ]
+            },
+            {
+                name: 'Sales and office occupations',
+                count: 185,
+                color: '#f3a712',
+                startIndex: 603,
+                icon: 'fa-store',
+                subcategories: [
+                    {
+                        name: 'Cashiers',
+                        count: 16,
+                        color: '#2b1c04',
+                        startIndex: 620,
+                        icon: 'fa-cash-register'
+                    },
+                    {
+                        name: 'Receptionists',
+                        count: 7,
+                        color: '#2b1c04',
+                        startIndex: 650,
+                        icon: 'fa-phone'
+                    },
+                    {
+                        name: 'Couriers',
+                        count: 6,
+                        color: '#2b1c04',
+                        startIndex: 670,
+                        icon: 'fa-truck-fast'
+                    },
+                    {
+                        name: 'Customer service representatives',
+                        count: 16,
+                        color: '#2b1c04',
+                        startIndex: 700,
+                        icon: 'fa-headset'
+                    }
+                ]
+            },
+            {
+                name: 'Natural resources, construction and maintenance',
+                count: 89,
+                color: '#f0cea0',
+                startIndex: 788,
+                icon: 'fa-hard-hat',
+                subcategories: [
+                    {
+                        name: 'Carpenters',
+                        count: 8,
+                        color: '#162504',
+                        startIndex: 800,
+                        icon: 'fa-hammer'
+                    },
+                    {
+                        name: 'Farming, fishing and forestry',
+                        count: 6,
+                        color: '#162504',
+                        startIndex: 820,
+                        icon: 'fa-tractor'
+                    },
+                    {
+                        name: 'Construction labourers',
+                        count: 14,
+                        color: '#162504',
+                        startIndex: 840,
+                        icon: 'fa-person-digging'
+                    },
+                    {
+                        name: 'Plumbers',
+                        count: 4,
+                        color: '#162504',
+                        startIndex: 860,
+                        icon: 'fa-wrench'
+                    },
+                    {
+                        name: 'Car mechanics',
+                        count: 6,
+                        color: '#162504',
+                        startIndex: 870,
+                        icon: 'fa-car'
+                    }
+                ]
+            },
+            {
+                name: 'Production, transportation, and material moving',
+                count: 123,
+                color: '#534d41',
+                startIndex: 877,
+                icon: 'fa-industry',
+                subcategories: [
+                    {
+                        name: 'Bakers',
+                        count: 2,
+                        color: '#2b0333',
+                        startIndex: 890,
+                        icon: 'fa-bread-slice'
+                    },
+                    {
+                        name: 'Stockers',
+                        count: 10,
+                        color: '#2b0333',
+                        startIndex: 910,
+                        icon: 'fa-box'
+                    },
+                    {
+                        name: 'Taxi drivers',
+                        count: 3,
+                        color: '#2b0333',
+                        startIndex: 930,
+                        icon: 'fa-taxi'
+                    },
+                    {
+                        name: 'Pilots and flight engineers',
+                        count: 1,
+                        color: '#2b0333',
+                        startIndex: 950,
+                        icon: 'fa-plane'
+                    }
+                ]
+            }
+        ];
+
+        const container = document.querySelector('.dots-container');
+        const labelText = document.querySelector('.label-text');
+        const labelIcon = document.querySelector('.occupation-icon');
+        const totalDots = 1000;
+        const buttons = document.querySelectorAll('.nav-button');
+
+        // Create dots
+        for (let i = 0; i < totalDots; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            container.appendChild(dot);
+        }
+
+        const dots = Array.from(document.querySelectorAll('.dot'));
+
+        // Update active button based on scroll position
+        function updateActiveButton(scrollPercent) {
+            const remainingScroll = (scrollPercent - 0.3) / 0.7;
+            const categoryIndex = Math.floor(remainingScroll * 5) + 1;
+            
+            buttons.forEach(button => {
+                button.classList.remove('active');
+                if (parseInt(button.dataset.section) === categoryIndex) {
+                    button.classList.add('active');
+                }
+            });
+        }
+
+        // Handle button clicks
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                const section = parseInt(button.dataset.section);
+                const targetScroll = 0.3 + ((section - 1) / 5) * 0.7 + 0.001;
+                const scrollTarget = targetScroll * (document.documentElement.scrollHeight - window.innerHeight);
+                window.scrollTo({
+                    top: scrollTarget,
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Update visualization based on scroll position
+        window.addEventListener('scroll', () => {
+            const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            let currentCategory;
+            let currentSubcategory;
+
+            // Reset all dots to grey
+            dots.forEach(dot => {
+                dot.style.backgroundColor = '#ddd';
+            });
+
+            // Update active button
+            updateActiveButton(scrollPercent);
+
+            if (scrollPercent < 0.3) { // Main categories section
+                const categoryIndex = Math.floor(scrollPercent * 6 / 0.3);
+                currentCategory = mainCategories[Math.min(categoryIndex, mainCategories.length - 1)];
+
+                // Show all categories up to the current one
+                if (categoryIndex > 0) {
+                    for (let i = 1; i <= categoryIndex; i++) {
+                        const cat = mainCategories[i];
+                        for (let j = 0; j < cat.count; j++) {
+                            dots[cat.startIndex + j].style.backgroundColor = cat.color;
+                        }
+                    }
+                }
+            } else { // Category detail sections
+                const remainingScroll = (scrollPercent - 0.3) / 0.7;
+                const categoryIndex = Math.floor(remainingScroll * 5) + 1;
+                currentCategory = mainCategories[categoryIndex];
+
+                if (currentCategory) {
+                    // Show base category
+                    for (let i = 0; i < currentCategory.count; i++) {
+                        dots[currentCategory.startIndex + i].style.backgroundColor = currentCategory.color;
+                    }
+
+                    // Show subcategory if applicable
+                    if (currentCategory.subcategories) {
+                        const subPercent = (remainingScroll * 5) % 1;
+                        // Only show subcategories after a brief pause at the start of each category
+                        if (subPercent > 0.1) {
+                            const adjustedSubPercent = (subPercent - 0.1) / 0.9; // Normalize the remaining percentage
+                            const subIndex = Math.floor(adjustedSubPercent * currentCategory.subcategories.length);
+                            currentSubcategory = currentCategory.subcategories[Math.min(subIndex, currentCategory.subcategories.length - 1)];
+                            
+                            if (currentSubcategory) {
+                                for (let i = 0; i < currentSubcategory.count; i++) {
+                                    dots[currentSubcategory.startIndex + i].style.backgroundColor = currentSubcategory.color;
+                                }
+                                currentCategory = currentSubcategory;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Update label and icon
+            labelText.textContent = currentCategory.name;
+            labelText.style.color = currentCategory.color;
+            labelIcon.className = `occupation-icon fa-solid ${currentCategory.icon}`;
+            labelIcon.style.color = currentCategory.color;
+        });
+
+        // Trigger initial render
+        window.dispatchEvent(new Event('scroll'));
+    </script>
+</body>
 </html>
