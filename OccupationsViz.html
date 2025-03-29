@@ -1,11 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>US Workforce Distribution</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        .home-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #007acc;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            z-index: 200;
+            transition: background-color 0.2s ease;
+        }
+
+        .home-button:hover {
+            background-color: #005fa3;
+        }
+
         body {
             margin: 0;
             min-height: 800vh;
@@ -37,7 +57,7 @@
             background: rgba(255, 255, 255, 0.9);
             padding: 12px;
             border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
             z-index: 100;
         }
 
@@ -60,7 +80,7 @@
 
         .nav-button.active {
             transform: translateX(5px);
-            box-shadow: 3px 0 10px rgba(0,0,0,0.2);
+            box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
         }
 
         .occupation-label {
@@ -86,7 +106,7 @@
             padding: 20px;
             background-color: white;
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
             width: 100%;
         }
 
@@ -121,7 +141,8 @@
                 padding: 6px 8px;
             }
 
-            .nav-button:hover, .nav-button.active {
+            .nav-button:hover,
+            .nav-button.active {
                 transform: translateY(-2px);
             }
 
@@ -146,7 +167,9 @@
         }
     </style>
 </head>
+
 <body>
+    <a href="index.html" class="home-button">← Return to Home</a>
     <div class="visualization-container">
         <div class="occupation-label">
             <i class="occupation-icon"></i>
@@ -155,19 +178,19 @@
         <div class="dots-container"></div>
     </div>
     <div class="navigation">
-        <button class="nav-button" style="background-color: #db2b39;" data-section="1">
+        <button class="nav-button" style="background-color: #a30c19;" data-section="1">
             Managers and professionals
         </button>
-        <button class="nav-button" style="background-color: #cc5500;" data-section="2">
+        <button class="nav-button" style="background-color: #e47221;" data-section="2">
             Service occupations
         </button>
         <button class="nav-button" style="background-color: #f3a712;" data-section="3">
             Sales and office
         </button>
-        <button class="nav-button" style="background-color: #f0cea0;" data-section="4">
+        <button class="nav-button" style="background-color: #0d630d;" data-section="4">
             Natural resources
         </button>
-        <button class="nav-button" style="background-color: #cc5500;" data-section="5">
+        <button class="nav-button" style="background-color: #b92959;" data-section="5">
             Production and transportation
         </button>
     </div>
@@ -176,56 +199,56 @@
             {
                 name: 'All US Workers',
                 count: 1000,
-                color: '#ddd',
+                color: '#2e2d2d',
                 startIndex: 0,
                 icon: 'fa-users'
             },
             {
                 name: 'Managers and professionals',
                 count: 438,
-                color: '#db2b39',
+                color: '#a30c19',
                 startIndex: 0,
                 icon: 'fa-briefcase',
                 subcategories: [
-                    { 
-                        name: 'Chief Executives', 
-                        count: 11, 
-                        color: '#333333',
+                    {
+                        name: 'Chief Executives',
+                        count: 11,
+                        color: '#ffaa00',
                         startIndex: 100,
                         icon: 'fa-user-tie'
                     },
-                    { 
-                        name: 'CS, IT, Software', 
-                        count: 36, 
-                        color: '#333333',
+                    {
+                        name: 'CS, IT, Software',
+                        count: 36,
+                        color: '#ffaa00',
                         startIndex: 150,
                         icon: 'fa-laptop-code'
                     },
-                    { 
-                        name: 'Engineers', 
-                        count: 16, 
-                        color: '#333333',
+                    {
+                        name: 'Engineers',
+                        count: 16,
+                        color: '#ffaa00',
                         startIndex: 250,
                         icon: 'fa-gear'
                     },
-                    { 
-                        name: 'Scientists', 
-                        count: 6, 
-                        color: '#333333',
+                    {
+                        name: 'Scientists',
+                        count: 6,
+                        color: '#ffaa00',
                         startIndex: 300,
                         icon: 'fa-flask'
                     },
-                    { 
-                        name: 'Teachers', 
-                        count: 34, 
-                        color: '#333333',
+                    {
+                        name: 'Teachers',
+                        count: 34,
+                        color: '#ffaa00',
                         startIndex: 350,
                         icon: 'fa-chalkboard-teacher'
                     },
-                    { 
-                        name: 'Doctors', 
-                        count: 6, 
-                        color: '#333333',
+                    {
+                        name: 'Doctors',
+                        count: 6,
+                        color: '#ffaa00',
                         startIndex: 400,
                         icon: 'fa-user-md'
                     }
@@ -234,7 +257,7 @@
             {
                 name: 'Service occupations',
                 count: 165,
-                color: '#cc5500',
+                color: '#e47221',
                 startIndex: 438,
                 icon: 'fa-bell-concierge',
                 subcategories: [
@@ -322,42 +345,42 @@
             {
                 name: 'Natural resources, construction and maintenance',
                 count: 89,
-                color: '#f0cea0',
+                color: '#0d630d',
                 startIndex: 788,
                 icon: 'fa-hard-hat',
                 subcategories: [
                     {
                         name: 'Carpenters',
                         count: 8,
-                        color: '#333333',
+                        color: '#ffaa00',
                         startIndex: 800,
                         icon: 'fa-hammer'
                     },
                     {
                         name: 'Farming, fishing and forestry',
                         count: 6,
-                        color: '#333333',
+                        color: '#ffaa00',
                         startIndex: 820,
                         icon: 'fa-tractor'
                     },
                     {
                         name: 'Construction labourers',
                         count: 14,
-                        color: '#333333',
+                        color: '#ffaa00',
                         startIndex: 840,
                         icon: 'fa-person-digging'
                     },
                     {
                         name: 'Plumbers',
                         count: 4,
-                        color: '#333333',
+                        color: '#ffaa00',
                         startIndex: 860,
                         icon: 'fa-wrench'
                     },
                     {
                         name: 'Car mechanics',
                         count: 6,
-                        color: '#333333',
+                        color: '#ffaa00',
                         startIndex: 870,
                         icon: 'fa-car'
                     }
@@ -366,35 +389,35 @@
             {
                 name: 'Production, transportation, and material moving',
                 count: 123,
-                color: '#cc5500',
+                color: '#b92959',
                 startIndex: 877,
                 icon: 'fa-industry',
                 subcategories: [
                     {
                         name: 'Bakers',
                         count: 2,
-                        color: '#333333',
+                        color: '#ffaa00',
                         startIndex: 890,
                         icon: 'fa-bread-slice'
                     },
                     {
                         name: 'Stockers',
                         count: 10,
-                        color: '#333333',
+                        color: '#ffaa00',
                         startIndex: 910,
                         icon: 'fa-box'
                     },
                     {
                         name: 'Taxi drivers',
                         count: 3,
-                        color: '#333333',
+                        color: '#ffaa00',
                         startIndex: 930,
                         icon: 'fa-taxi'
                     },
                     {
                         name: 'Pilots and flight engineers',
                         count: 1,
-                        color: '#333333',
+                        color: '#ffaa00',
                         startIndex: 950,
                         icon: 'fa-plane'
                     }
@@ -421,7 +444,7 @@
         function updateActiveButton(scrollPercent) {
             const remainingScroll = (scrollPercent - 0.3) / 0.7;
             const categoryIndex = Math.floor(remainingScroll * 5) + 1;
-            
+
             buttons.forEach(button => {
                 button.classList.remove('active');
                 if (parseInt(button.dataset.section) === categoryIndex) {
@@ -489,7 +512,7 @@
                             const adjustedSubPercent = (subPercent - 0.1) / 0.9; // Normalize the remaining percentage
                             const subIndex = Math.floor(adjustedSubPercent * currentCategory.subcategories.length);
                             currentSubcategory = currentCategory.subcategories[Math.min(subIndex, currentCategory.subcategories.length - 1)];
-                            
+
                             if (currentSubcategory) {
                                 for (let i = 0; i < currentSubcategory.count; i++) {
                                     dots[currentSubcategory.startIndex + i].style.backgroundColor = currentSubcategory.color;
@@ -512,4 +535,5 @@
         window.dispatchEvent(new Event('scroll'));
     </script>
 </body>
+
 </html>
