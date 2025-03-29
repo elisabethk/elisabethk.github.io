@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Floating Orbs</title>
+    <title>Floating Orbs with Shimmer</title>
     <style>
         html,
         body {
@@ -14,17 +14,23 @@
             overflow: hidden;
         }
 
-        .orb-container {
+        .orb-wrapper {
             position: absolute;
-            animation: float ease-in-out infinite alternate;
+            left: 0;
+            top: 0;
+            transform: translate(-50%, -50%);
         }
 
         .orb {
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
             background: radial-gradient(circle, rgba(253, 253, 253, 0.993), #ffce2d00);
             filter: blur(20px);
-            width: 100%;
-            height: 100%;
+            animation: float ease-in-out infinite alternate;
+            /* Removed pulse animation */
+            position: relative;
+            overflow: hidden;
         }
 
         @keyframes float {
@@ -48,6 +54,20 @@
                 transform: translate(0, 0);
             }
         }
+
+        @keyframes pulseGlow {
+
+            0%,
+            100% {
+                transform: scale(0.4);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
@@ -56,40 +76,68 @@
         const numOrbs = 30;
 
         for (let i = 0; i < numOrbs; i++) {
-            const container = document.createElement('div');
-            container.classList.add('orb-container');
+            const wrapper = document.createElement('div');
+            wrapper.classList.add('orb-wrapper');
 
             const orb = document.createElement('div');
             orb.classList.add('orb');
 
             const size = 5 + Math.random() * 250;
-            container.style.width = container.style.height = `${size}px`;
+            wrapper.style.width = wrapper.style.height = `${size}px`;
 
-            const x = Math.random() * window.innerWidth;
-            const y = Math.random() * window.innerHeight;
-            container.style.left = `${x}px`;
-            container.style.top = `${y}px`;
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            wrapper.style.left = `${x}vw`;
+            wrapper.style.top = `${y}vh`;
 
-            const dx = (Math.random() - 0.5) * 2500;
-            const dy = (Math.random() - 0.5) * 2500;
-            container.style.setProperty('--dx', `${dx}px`);
-            container.style.setProperty('--dy', `${dy}px`);
+            const dx = (Math.random() - 0.5) * 300;
+            const dy = (Math.random() - 0.5) * 300;
+            orb.style.setProperty('--dx', `${dx}px`);
+            orb.style.setProperty('--dy', `${dy}px`);
 
-            const duration = (40 + Math.random() * 40) * 0.5;
-            container.style.animationDuration = `${duration}s`;
+            const duration = 6 + Math.random() * 10;
+            orb.style.animationDuration = `${duration}s`;
 
-            // Assign pastel pink or yellow to one or two bubbles
-            if (Math.random() < 0.2) { // 20% chance
+            orb.style.animation = `float ${duration}s ease-in-out infinite alternate`;
+
+            // Pastel orbs
+            if (Math.random() < 0.2) {
                 const colors = [
-                    'radial-gradient(circle, rgba(255, 182, 193, 0.8), rgba(255, 182, 193, 0))', // pastel pink
-                    'radial-gradient(circle, rgba(255, 255, 204, 0.8), rgba(255, 255, 204, 0))'  // pastel yellow
+                    'radial-gradient(circle, rgba(255, 182, 193, 0.8), rgba(255, 182, 193, 0))',
+                    'radial-gradient(circle, rgba(255, 255, 204, 0.8), rgba(255, 255, 204, 0))'
                 ];
                 orb.style.background = colors[Math.floor(Math.random() * colors.length)];
             }
 
-            container.appendChild(orb);
-            document.body.appendChild(container);
+            wrapper.appendChild(orb);
+            document.body.appendChild(wrapper);
         }
+
+        const bigOrbWrapper = document.createElement('div');
+        bigOrbWrapper.classList.add('orb-wrapper');
+
+        const bigOrb = document.createElement('div');
+        bigOrb.classList.add('orb');
+        bigOrb.style.background = 'radial-gradient(circle, rgba(173, 216, 230, 0.4), rgba(173, 216, 230, 0.7))'; // Lighter blue, less opaque
+        bigOrb.style.boxShadow = '0 0 50px 25px rgba(173, 216, 230, 0.5)'; // Softer blue glow
+        bigOrbWrapper.style.width = bigOrbWrapper.style.height = '300px'; // Much bigger size
+
+        const bigX = 40 + Math.random() * 20; // Start between 40vw and 60vw
+        const bigY = 40 + Math.random() * 20; // Start between 40vh and 60vh
+        bigOrbWrapper.style.left = `${bigX}vw`;
+        bigOrbWrapper.style.top = `${bigY}vh`;
+
+        const bigDx = (Math.random() - 0.5) * 300;
+        const bigDy = (Math.random() - 0.5) * 300;
+        bigOrb.style.setProperty('--dx', `${bigDx}px`);
+        bigOrb.style.setProperty('--dy', `${bigDy}px`);
+
+        const bigDuration = 50 + Math.random() * 20; // Slightly slower movement
+        bigOrb.style.animationDuration = `${bigDuration}s`;
+        bigOrb.style.animation = `float ${bigDuration}s ease-in-out infinite alternate, pulseGlow 18s ease-in-out infinite`;
+
+        bigOrbWrapper.appendChild(bigOrb);
+        document.body.appendChild(bigOrbWrapper);
     </script>
 </body>
 

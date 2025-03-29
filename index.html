@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome</title>
   <style>
     body {
@@ -25,7 +26,8 @@
       border-radius: 20px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       max-width: 500px;
-      width: 90%;
+      width: calc(100% - 20px);
+      /* Add a 10px gap on each side */
     }
 
     h1 {
@@ -37,6 +39,8 @@
     p {
       margin-bottom: 2rem;
       color: #2c472d;
+      font-size: 1.2rem;
+      /* Adjusted for better readability on mobile */
     }
 
     a {
@@ -47,7 +51,9 @@
       text-decoration: none;
       border-radius: 6px;
       transition: background-color 0.2s ease;
-      font-size: 1rem;
+      font-size: 1.1rem;
+      margin: 0.5rem 0;
+      /* Add vertical margin to separate buttons */
     }
 
     a:hover {
@@ -64,8 +70,13 @@
       }
 
       a {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
+        padding: 0.6rem 1.2rem;
+        font-size: 1rem;
+      }
+
+      .container {
+        width: calc(100% - 160px);
+        /* Add a 160px gap on each side for smaller screens */
       }
     }
   </style>
