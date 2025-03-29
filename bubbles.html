@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Floating Orbs</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, #d3fae0, #a3e7c4, #cbf1d8);
+            overflow: hidden;
+        }
+
+        .orb-container {
+            position: absolute;
+            animation: float ease-in-out infinite alternate;
+        }
+
+        .orb {
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(253, 253, 253, 0.993), #ffce2d00);
+            filter: blur(20px);
+            width: 100%;
+            height: 100%;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0);
+            }
+
+            25% {
+                transform: translate(calc(var(--dx) * 0.5), calc(var(--dy) * 0.3));
+            }
+
+            50% {
+                transform: translate(var(--dx), var(--dy));
+            }
+
+            75% {
+                transform: translate(calc(var(--dx) * 0.3), calc(var(--dy) * 0.6));
+            }
+
+            100% {
+                transform: translate(0, 0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        const numOrbs = 30;
+
+        for (let i = 0; i < numOrbs; i++) {
+            const container = document.createElement('div');
+            container.classList.add('orb-container');
+
+            const orb = document.createElement('div');
+            orb.classList.add('orb');
+
+            const size = 5 + Math.random() * 250;
+            container.style.width = container.style.height = `${size}px`;
+
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight;
+            container.style.left = `${x}px`;
+            container.style.top = `${y}px`;
+
+            const dx = (Math.random() - 0.5) * 2500;
+            const dy = (Math.random() - 0.5) * 2500;
+            container.style.setProperty('--dx', `${dx}px`);
+            container.style.setProperty('--dy', `${dy}px`);
+
+            const duration = (40 + Math.random() * 40) * 0.5;
+            container.style.animationDuration = `${duration}s`;
+
+            // Assign pastel pink or yellow to one or two bubbles
+            if (Math.random() < 0.2) { // 20% chance
+                const colors = [
+                    'radial-gradient(circle, rgba(255, 182, 193, 0.8), rgba(255, 182, 193, 0))', // pastel pink
+                    'radial-gradient(circle, rgba(255, 255, 204, 0.8), rgba(255, 255, 204, 0))'  // pastel yellow
+                ];
+                orb.style.background = colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            container.appendChild(orb);
+            document.body.appendChild(container);
+        }
+    </script>
+</body>
+
+</html>
