@@ -25,6 +25,7 @@
       border-radius: 20px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       max-width: 500px;
+      width: 90%;
     }
 
     h1 {
@@ -46,10 +47,26 @@
       text-decoration: none;
       border-radius: 6px;
       transition: background-color 0.2s ease;
+      font-size: 1rem;
     }
 
     a:hover {
       background-color: #386445;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+
+      a {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
