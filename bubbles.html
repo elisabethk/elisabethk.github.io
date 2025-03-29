@@ -90,12 +90,12 @@
             wrapper.style.left = `${x}vw`;
             wrapper.style.top = `${y}vh`;
 
-            const dx = (Math.random() - 0.5) * 300;
-            const dy = (Math.random() - 0.5) * 300;
+            const dx = (Math.random() - 0.5) * 600;
+            const dy = (Math.random() - 0.5) * 600;
             orb.style.setProperty('--dx', `${dx}px`);
             orb.style.setProperty('--dy', `${dy}px`);
 
-            const duration = 6 + Math.random() * 10;
+            const duration = 6 + Math.random() * 30;
             orb.style.animationDuration = `${duration}s`;
 
             orb.style.animation = `float ${duration}s ease-in-out infinite alternate`;
@@ -127,12 +127,12 @@
         bigOrbWrapper.style.left = `${bigX}vw`;
         bigOrbWrapper.style.top = `${bigY}vh`;
 
-        const bigDx = (Math.random() - 0.5) * 300;
-        const bigDy = (Math.random() - 0.5) * 300;
+        const bigDx = (Math.random() - 0.5) * 900;
+        const bigDy = (Math.random() - 0.5) * 900;
         bigOrb.style.setProperty('--dx', `${bigDx}px`);
         bigOrb.style.setProperty('--dy', `${bigDy}px`);
 
-        const bigDuration = 50 + Math.random() * 20; // Slightly slower movement
+        const bigDuration = 5 + Math.random() * 10; // Slightly slower movement
         bigOrb.style.animationDuration = `${bigDuration}s`;
         bigOrb.style.animation = `float ${bigDuration}s ease-in-out infinite alternate, pulseGlow 18s ease-in-out infinite`;
 
