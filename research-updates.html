@@ -3,12 +3,14 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Research Updates Timeline</title>
+    <title>LC/ME Research Updates Timeline</title>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <style>
         body {
             font-family: sans-serif;
-            background: #f9fafb;
+            background: #1e1e1e;
+            color: #e0e0e0;
+            /* Lighter text color for better contrast */
             margin: 0;
             padding: 2rem;
         }
@@ -37,7 +39,9 @@
             position: relative;
             margin-bottom: 2rem;
             padding: 1rem 1.5rem;
-            background: white;
+            background: #2e2e2e;
+            color: #e0e0e0;
+            /* Lighter text color for better contrast */
             border-radius: 0.5rem;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
@@ -68,14 +72,21 @@
         }
 
         .card p {
-            color: #374151;
+            color: #f0f0f0;
+            /* Lighter text color for better legibility */
             margin: 0.5rem 0;
+        }
+
+        .card a {
+            color: #f0f0f0;
+            /* Lighter text color for 'Read more' link */
         }
 
         .tags {
             margin-top: 0.75rem;
             font-size: 0.85rem;
-            color: #4b5563;
+            color: #d0d0d0;
+            /* Lighter text color for tags */
         }
 
         .link {
@@ -88,20 +99,60 @@
         .month-year {
             font-weight: bold;
             margin: 1rem 0;
-            color: #374151;
+            color: #d0d0d0;
+            /* Lighter text color for month/year labels */
+        }
+
+        #filter-container,
+        #jump-container {
+            display: inline-block;
+            margin-right: 1rem;
+            vertical-align: top;
+        }
+
+        #return-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            /* Hidden by default */
+        }
+
+        #return-to-top:hover {
+            background: #0077b6;
         }
     </style>
 </head>
 
 <body>
-    <h1>Research Updates</h1>
+    <h1>LC / ME Research Updates</h1>
     <div id="filter-container">
         <label for="tag-filter">Filter by tag:</label>
         <select id="tag-filter" onchange="filterByTag()">
             <option value="all">All</option>
         </select>
     </div>
+    <div id="jump-container">
+        <label for="month-year-jump">Jump to:</label>
+        <select id="month-year-jump" onchange="jumpToMonthYear()">
+            <option value="">Select a month/year</option>
+        </select>
+    </div>
     <div id="timeline" class="timeline">Loading updates...</div>
+    <button id="return-to-top" onclick="scrollToTop()">↑</button>
 
     <script>
         const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ28g90tYQKcq5QnRJULaYVLjm4lwZqfL-nVVtAhACY9JbgIMhSrlMMgNFHQCm3wUEXfdxOR8IRBB6D/pub?gid=0&single=true&output=csv';
@@ -134,12 +185,35 @@
 
         function populateTagFilter(tags) {
             const filter = document.getElementById('tag-filter');
+            filter.innerHTML = '<option value="all">All</option>'; // Reset options
             tags.forEach(tag => {
                 const option = document.createElement('option');
                 option.value = tag;
                 option.textContent = tag;
                 filter.appendChild(option);
             });
+        }
+
+        function populateMonthYearJump(monthYears) {
+            const jumpDropdown = document.getElementById('month-year-jump');
+            monthYears.forEach(monthYear => {
+                const option = document.createElement('option');
+                option.value = monthYear;
+                option.textContent = monthYear;
+                jumpDropdown.appendChild(option);
+            });
+        }
+
+        function jumpToMonthYear() {
+            const selectedMonthYear = document.getElementById('month-year-jump').value;
+            if (selectedMonthYear) {
+                const targetElement = Array.from(document.querySelectorAll('.month-year')).find(
+                    element => element.textContent === selectedMonthYear
+                );
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
         }
 
         function filterByTag() {
@@ -174,6 +248,7 @@
 
                         let lastMonthYear = '';
                         const allTags = new Set();
+                        const monthYears = new Set();
 
                         data.forEach(entry => {
                             const currentMonthYear = formatMonthYear(entry['Date']);
@@ -184,6 +259,7 @@
                                 monthYearLabel.textContent = currentMonthYear;
                                 timeline.appendChild(monthYearLabel);
                                 lastMonthYear = currentMonthYear;
+                                monthYears.add(currentMonthYear);
                             }
 
                             const card = createCard(entry);
@@ -194,6 +270,7 @@
                         });
 
                         populateTagFilter(Array.from(allTags).sort());
+                        populateMonthYearJump(Array.from(monthYears).sort());
                     },
                     error: function (err) {
                         console.error('Parsing error:', err);
@@ -203,6 +280,20 @@
                 console.error('Fetch or parsing failed:', err);
                 document.getElementById('timeline').innerText = 'Failed to load updates.';
             }
+        }
+
+        const returnToTopButton = document.getElementById('return-to-top');
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 200) {
+                returnToTopButton.style.display = 'flex';
+            } else {
+                returnToTopButton.style.display = 'none';
+            }
+        });
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         loadTimeline();
