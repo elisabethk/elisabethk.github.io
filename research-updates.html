@@ -3,111 +3,151 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Research Updates</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Research Updates Timeline</title>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <style>
-        /* Timeline and card styles */
+        body {
+            font-family: sans-serif;
+            background: #f9fafb;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        /* Timeline container with vertical line */
         .timeline {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
-            margin: 2rem;
+            position: relative;
+            margin-left: 2rem;
+            padding-left: 2rem;
+            border-left: 2px solid #ccc;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #ccc;
         }
 
         .card {
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 1rem;
-            background-color: #f9f9f9;
+            position: relative;
+            margin-bottom: 2rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        .hashtags {
-            display: flex;
-            gap: 0.5rem;
+        .card::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 1rem;
+            width: 10px;
+            height: 10px;
+            background-color: #0ea5e9;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #ccc;
+        }
+
+        .card h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: #111827;
+        }
+
+        .card h3 {
+            margin: 0.25rem 0 0.5rem;
+            font-weight: normal;
+            color: #6b7280;
+        }
+
+        .card p {
+            color: #374151;
+            margin: 0.5rem 0;
+        }
+
+        .tags {
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: #4b5563;
+        }
+
+        .link {
+            display: block;
             margin-top: 0.5rem;
+            color: #2563eb;
+            text-decoration: none;
         }
 
-        .hashtag {
-            background-color: #e0e0e0;
-            border-radius: 4px;
-            padding: 0.3rem 0.6rem;
-            cursor: pointer;
-        }
-
-        .hashtag:hover {
-            background-color: #d0d0d0;
-        }
-
-        .filter-buttons {
-            margin: 1rem 2rem;
-        }
-
-        .filter-buttons button {
-            margin-right: 0.5rem;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 4px;
-            background-color: #4a7c59;
-            color: white;
-            cursor: pointer;
-        }
-
-        .filter-buttons button:hover {
-            background-color: #386445;
+        .month-year {
+            font-weight: bold;
+            margin: 1rem 0;
+            color: #374151;
         }
     </style>
 </head>
 
 <body>
-    <header>
-        <h1>Research Updates</h1>
-        <nav>
-            <a href="index.html">Home</a>
-        </nav>
-    </header>
-    <main>
-        <div class="filter-buttons">
-            <button onclick="filterTimeline('all')">All</button>
-            <button onclick="filterTimeline('hashtag1')">#Hashtag1</button>
-            <button onclick="filterTimeline('hashtag2')">#Hashtag2</button>
-        </div>
-        <div class="timeline" id="timeline">
-            <!-- Cards will be dynamically inserted here -->
-        </div>
-    </main>
-    <footer>
-        <p>&copy; 2023 Elisabeth K.</p>
-    </footer>
+    <h1>Research Updates</h1>
+    <div id="filter-container">
+        <label for="tag-filter">Filter by tag:</label>
+        <select id="tag-filter" onchange="filterByTag()">
+            <option value="all">All</option>
+        </select>
+    </div>
+    <div id="timeline" class="timeline">Loading updates...</div>
+
     <script>
-        async function fetchGoogleSheetData() {
-            const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ28g90tYQKcq5QnRJULaYVLjm4lwZqfL-nVVtAhACY9JbgIMhSrlMMgNFHQCm3wUEXfdxOR8IRBB6D/pub?output=csv';
-            const response = await fetch(url);
-            const text = await response.text();
-            const rows = text.split('\n').map(row => row.split(','));
-            return rows;
+        const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ28g90tYQKcq5QnRJULaYVLjm4lwZqfL-nVVtAhACY9JbgIMhSrlMMgNFHQCm3wUEXfdxOR8IRBB6D/pub?gid=0&single=true&output=csv';
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+
+        function formatMonthYear(dateString) {
+            const options = { year: 'numeric', month: 'long' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
         }
 
         function createCard(data) {
             const card = document.createElement('div');
             card.className = 'card';
+            const bulletPoints = data.Description.split('.,').map(item => `<li>${item.trim()}</li>`).join('');
+            const tags = data.Tags.split(',').map(tag => `<span class='hashtag' onclick='filterTimeline("${tag.trim()}")'>#${tag.trim()}</span>`).join(' ');
             card.innerHTML = `
-                <h3>${data.headline}</h3>
-                <p><strong>Date:</strong> ${data.date}</p>
-                <p><strong>Short Text:</strong> ${data.shortText}</p>
-                <p>${data.description}</p>
-                <div class="hashtags">
-                    ${data.tags.map(tag => `<span class='hashtag' onclick='filterTimeline("${tag}")'>#${tag}</span>`).join(' ')}
-                </div>
-                <p><a href="${data.link}" target="_blank">Read more</a></p>
+                <h3>${data.Headline}</h3>
+                <h4>${data['Short text']}</h4>
+                <p><strong>Date:</strong> ${formatDate(data.Date)}</p>
+                <ul>${bulletPoints}</ul>
+                <div class="tags">${tags}</div>
+                <p><a href="${data.Link}" target="_blank">Read more</a></p>
             `;
             return card;
         }
 
-        function filterTimeline(tag) {
+        function populateTagFilter(tags) {
+            const filter = document.getElementById('tag-filter');
+            tags.forEach(tag => {
+                const option = document.createElement('option');
+                option.value = tag;
+                option.textContent = tag;
+                filter.appendChild(option);
+            });
+        }
+
+        function filterByTag() {
+            const selectedTag = document.getElementById('tag-filter').value;
             const cards = document.querySelectorAll('.card');
             cards.forEach(card => {
-                if (tag === 'all' || card.innerHTML.includes(`#${tag}`)) {
+                const cardTags = card.querySelector('.tags').textContent;
+                if (selectedTag === 'all' || cardTags.includes(`#${selectedTag}`)) {
                     card.style.display = 'block';
                 } else {
                     card.style.display = 'none';
@@ -115,24 +155,57 @@
             });
         }
 
-        async function initializeTimeline() {
-            const data = await fetchGoogleSheetData();
-            const timeline = document.getElementById('timeline');
-            data.slice(1).forEach(row => {
-                const [empty, date, tags, headline, shortText, description, link] = row;
-                const card = createCard({
-                    date,
-                    tags: tags.split('|'),
-                    headline,
-                    shortText,
-                    description,
-                    link
+        async function loadTimeline() {
+            try {
+                const response = await fetch(sheetUrl);
+                const csv = await response.text();
+
+                Papa.parse(csv, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function (results) {
+                        const data = results.data;
+
+                        // Sort by Date descending
+                        data.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+
+                        const timeline = document.getElementById('timeline');
+                        timeline.innerHTML = '';
+
+                        let lastMonthYear = '';
+                        const allTags = new Set();
+
+                        data.forEach(entry => {
+                            const currentMonthYear = formatMonthYear(entry['Date']);
+
+                            if (currentMonthYear !== lastMonthYear) {
+                                const monthYearLabel = document.createElement('div');
+                                monthYearLabel.className = 'month-year';
+                                monthYearLabel.textContent = currentMonthYear;
+                                timeline.appendChild(monthYearLabel);
+                                lastMonthYear = currentMonthYear;
+                            }
+
+                            const card = createCard(entry);
+                            timeline.appendChild(card);
+
+                            // Collect tags
+                            entry.Tags.split(',').forEach(tag => allTags.add(tag.trim()));
+                        });
+
+                        populateTagFilter(Array.from(allTags).sort());
+                    },
+                    error: function (err) {
+                        console.error('Parsing error:', err);
+                    }
                 });
-                timeline.appendChild(card);
-            });
+            } catch (err) {
+                console.error('Fetch or parsing failed:', err);
+                document.getElementById('timeline').innerText = 'Failed to load updates.';
+            }
         }
 
-        initializeTimeline();
+        loadTimeline();
     </script>
 </body>
 
