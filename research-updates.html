@@ -13,6 +13,8 @@
             /* Lighter text color for better contrast */
             margin: 0;
             padding: 2rem;
+            font-size: 1.2rem;
+            /* Increase base font size for better readability */
         }
 
         /* Timeline container with vertical line */
@@ -45,6 +47,8 @@
             border-radius: 0.5rem;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             transition: box-shadow 0.3s ease;
+            font-size: 1.2rem;
+            /* Ensure consistent font size across all cards */
         }
 
         .card:hover {
@@ -74,12 +78,24 @@
             margin: 0.25rem 0 0.5rem;
             font-weight: normal;
             color: #6b7280;
+            font-size: 1.4rem;
+            /* Increase font size for headlines */
+        }
+
+        .card h4 {
+            font-size: 1.2rem;
+            /* Adjust subheading font size */
         }
 
         .card p {
             color: #f0f0f0;
             /* Lighter text color for better legibility */
             margin: 0.5rem 0;
+        }
+
+        .card ul {
+            font-size: 1.2rem;
+            /* Ensure bullet points are readable */
         }
 
         .card a {
@@ -106,6 +122,8 @@
             margin: 1rem 0;
             color: #d0d0d0;
             /* Lighter text color for month/year labels */
+            font-size: 1.3rem;
+            /* Adjust font size for month/year labels */
         }
 
         #filter-container,
@@ -145,7 +163,7 @@
             body {
                 padding: 1rem;
                 font-size: 1.2rem;
-                /* Further increase base font size for mobile */
+                /* Increase base font size for better readability */
             }
 
             .timeline {
@@ -160,11 +178,31 @@
                 box-shadow: none;
                 border: 1px solid #444;
                 font-size: 1.2rem;
-                /* Ensure card text is readable */
+                /* Ensure consistent font size across all cards */
+                max-width: 100%;
+                /* Ensure cards fit within the screen width */
             }
 
-            .card::before {
-                display: none;
+            .card h3 {
+                font-size: 1.4rem;
+                /* Increase font size for headlines */
+            }
+
+            .card h4 {
+                font-size: 1.2rem;
+                /* Adjust subheading font size */
+            }
+
+            .card ul {
+                font-size: 1.2rem;
+                /* Ensure bullet points are readable */
+            }
+
+            .month-year {
+                font-size: 1.3rem;
+                /* Adjust font size for month/year labels */
+                text-align: left;
+                /* Align text for better readability */
             }
 
             #filter-container,
@@ -179,21 +217,10 @@
                 height: 40px;
                 font-size: 1.2rem;
             }
-
-            .month-year {
-                margin-top: 1rem;
-                font-size: 1.3rem;
-                /* Larger font for month/year labels */
-            }
-
-            .tags {
-                font-size: 1rem;
-                /* Adjust tag font size for readability */
-            }
         }
 
         .card.highlight {
-            background: #33021a;
+            background: #130c36;
             /* Dark pink background for highlighted cards */
             color: #ffffff;
             /* Ensure text remains white */
@@ -215,7 +242,8 @@
         #highlight-toggle-container button {
             padding: 0.6rem 1.5rem;
             /* Increase padding to add space around the dropdown arrow */
-            font-size: 1rem;
+            font-size: 1.2rem;
+            /* Ensure dropdowns and buttons have consistent font size */
             font-family: 'Segoe UI', sans-serif;
             border: 1px solid #555;
             border-radius: 25px;
