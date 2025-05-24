@@ -1,42 +1,138 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <title>Research Updates Timeline</title>
-    <script src="https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"></script>
-    <link href="https://cdn.knightlab.com/libs/timeline3/latest/css/timeline.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Updates</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
-        body {
-            font-family: sans-serif;
-            background: #f8fafc;
-            margin: 0;
-            padding: 0;
+        /* Timeline and card styles */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 2rem;
         }
 
-        #timeline-embed {
-            width: 100%;
-            height: 100vh;
+        .card {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 1rem;
+            background-color: #f9f9f9;
+        }
+
+        .hashtags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .hashtag {
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            padding: 0.3rem 0.6rem;
+            cursor: pointer;
+        }
+
+        .hashtag:hover {
+            background-color: #d0d0d0;
+        }
+
+        .filter-buttons {
+            margin: 1rem 2rem;
+        }
+
+        .filter-buttons button {
+            margin-right: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            background-color: #4a7c59;
+            color: white;
+            cursor: pointer;
+        }
+
+        .filter-buttons button:hover {
+            background-color: #386445;
         }
     </style>
 </head>
 
 <body>
-    <div id="timeline-embed"></div>
-    <script type="text/javascript">
-        var additionalOptions = {
-            start_at_end: false,
-            initial_zoom: 3,
-            timenav_position: "bottom",
-            default_bg_color: "#f1f5f9",
-            font: "Arial"
-        };
+    <header>
+        <h1>Research Updates</h1>
+        <nav>
+            <a href="index.html">Home</a>
+        </nav>
+    </header>
+    <main>
+        <div class="filter-buttons">
+            <button onclick="filterTimeline('all')">All</button>
+            <button onclick="filterTimeline('hashtag1')">#Hashtag1</button>
+            <button onclick="filterTimeline('hashtag2')">#Hashtag2</button>
+        </div>
+        <div class="timeline" id="timeline">
+            <!-- Cards will be dynamically inserted here -->
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2023 Elisabeth K.</p>
+    </footer>
+    <script>
+        async function fetchGoogleSheetData() {
+            const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ28g90tYQKcq5QnRJULaYVLjm4lwZqfL-nVVtAhACY9JbgIMhSrlMMgNFHQCm3wUEXfdxOR8IRBB6D/pub?output=csv';
+            const response = await fetch(url);
+            const text = await response.text();
+            const rows = text.split('\n').map(row => row.split(','));
+            return rows;
+        }
 
-        timeline = new TL.Timeline(
-            'timeline-embed',
-            'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ28g90tYQKcq5QnRJULaYVLjm4lwZqfL-nVVtAhACY9JbgIMhSrlMMgNFHQCm3wUEXfdxOR8IRBB6D/pubhtml', // replace with your actual published sheet link
-            additionalOptions
-        );
+        function createCard(data) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <h3>${data.headline}</h3>
+                <p><strong>Date:</strong> ${data.date}</p>
+                <p><strong>Short Text:</strong> ${data.shortText}</p>
+                <p>${data.description}</p>
+                <div class="hashtags">
+                    ${data.tags.map(tag => `<span class='hashtag' onclick='filterTimeline("${tag}")'>#${tag}</span>`).join(' ')}
+                </div>
+                <p><a href="${data.link}" target="_blank">Read more</a></p>
+            `;
+            return card;
+        }
+
+        function filterTimeline(tag) {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                if (tag === 'all' || card.innerHTML.includes(`#${tag}`)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        async function initializeTimeline() {
+            const data = await fetchGoogleSheetData();
+            const timeline = document.getElementById('timeline');
+            data.slice(1).forEach(row => {
+                const [empty, date, tags, headline, shortText, description, link] = row;
+                const card = createCard({
+                    date,
+                    tags: tags.split('|'),
+                    headline,
+                    shortText,
+                    description,
+                    link
+                });
+                timeline.appendChild(card);
+            });
+        }
+
+        initializeTimeline();
     </script>
 </body>
 
