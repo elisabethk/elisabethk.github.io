@@ -3,6 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>LC/ME Research Updates Timeline</title>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <style>
@@ -162,47 +164,35 @@
         @media (max-width: 768px) {
             body {
                 padding: 1rem;
-                font-size: 1.2rem;
-                /* Increase base font size for better readability */
+                font-size: 1.1rem;
             }
 
-            .timeline {
-                margin-left: 0;
-                padding-left: 0;
-                border-left: none;
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
             }
 
             .card {
                 padding: 1rem;
-                margin-bottom: 1.5rem;
+                font-size: 1.05rem;
                 box-shadow: none;
                 border: 1px solid #444;
-                font-size: 1.2rem;
-                /* Ensure consistent font size across all cards */
-                max-width: 100%;
-                /* Ensure cards fit within the screen width */
             }
 
             .card h3 {
-                font-size: 1.4rem;
-                /* Increase font size for headlines */
+                font-size: 1.2rem;
             }
 
             .card h4 {
-                font-size: 1.2rem;
-                /* Adjust subheading font size */
+                font-size: 1.05rem;
             }
 
             .card ul {
-                font-size: 1.2rem;
-                /* Ensure bullet points are readable */
+                font-size: 1.05rem;
             }
 
-            .month-year {
-                font-size: 1.3rem;
-                /* Adjust font size for month/year labels */
-                text-align: left;
-                /* Align text for better readability */
+            .tags {
+                font-size: 0.9rem;
             }
 
             #filter-container,
@@ -212,12 +202,21 @@
                 margin-bottom: 1rem;
             }
 
+            #filter-container select,
+            #jump-container select,
+            #highlight-toggle-container button {
+                width: 100%;
+                font-size: 1.1rem;
+                padding: 0.75rem 1rem;
+            }
+
             #return-to-top {
                 width: 40px;
                 height: 40px;
                 font-size: 1.2rem;
             }
         }
+
 
         .card.highlight {
             background: #130c36;
