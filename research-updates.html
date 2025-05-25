@@ -7,16 +7,17 @@
 
     <title>LC/ME Research Updates Timeline</title>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: sans-serif;
+            font-family: 'Inter', sans-serif;
             background: #1e1e1e;
             color: #e0e0e0;
             /* Lighter text color for better contrast */
             margin: 0;
             padding: 2rem;
-            font-size: 1.2rem;
-            /* Increase base font size for better readability */
+            font-size: 1rem;
+            /* Reduce base font size slightly */
         }
 
         /* Timeline container with vertical line */
@@ -41,20 +42,25 @@
 
         .card {
             position: relative;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             padding: 1rem 1.5rem;
             background: #2e2e2e;
             color: #e0e0e0;
+            border-left: 4px solid #3b82f6;
+            /* blue accent */
             /* Lighter text color for better contrast */
             border-radius: 0.5rem;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: box-shadow 0.3s ease;
-            font-size: 1.2rem;
-            /* Ensure consistent font size across all cards */
+            box-shadow: 0 2px 5px rgba(255, 255, 255, 0.1);
+            transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            font-size: 1rem;
+            /* Reduce font size for cards */
         }
 
         .card:hover {
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 10px rgba(172, 176, 183, 0.5);
+            /* Subtle blue glow */
+            border-left-color: #c1cedf;
+            /* Lighter blue accent on hover */
         }
 
         .card::before {
@@ -79,13 +85,13 @@
         .card h3 {
             margin: 0.25rem 0 0.5rem;
             font-weight: normal;
-            color: #6b7280;
-            font-size: 1.4rem;
-            /* Increase font size for headlines */
+            color: #d0f0ff;
+            font-size: 1.2rem;
+            /* Adjust headline font size */
         }
 
         .card h4 {
-            font-size: 1.2rem;
+            font-size: 1rem;
             /* Adjust subheading font size */
         }
 
@@ -96,8 +102,8 @@
         }
 
         .card ul {
-            font-size: 1.2rem;
-            /* Ensure bullet points are readable */
+            font-size: 1rem;
+            /* Adjust bullet point font size */
         }
 
         .card a {
@@ -112,6 +118,27 @@
             /* Lighter text color for tags */
         }
 
+        .tags .hashtag {
+            display: inline-block;
+            background: #233f6c;
+            /* Blue background for badges */
+            color: #ffffff;
+            /* White text for contrast */
+            padding: 0.3rem 0.75rem;
+            border-radius: 9999px;
+            /* Pill shape */
+            font-size: 0.85rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .tags .hashtag:hover {
+            background: #2563eb;
+            /* Darker blue on hover */
+        }
+
         .link {
             display: block;
             margin-top: 0.5rem;
@@ -120,12 +147,12 @@
         }
 
         .month-year {
-            font-weight: bold;
-            margin: 1rem 0;
-            color: #d0d0d0;
-            /* Lighter text color for month/year labels */
-            font-size: 1.3rem;
-            /* Adjust font size for month/year labels */
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #93c5fd;
+            margin-top: 2rem;
+            border-bottom: 1px solid #374151;
+            padding-bottom: 0.8rem;
         }
 
         #filter-container,
@@ -239,11 +266,11 @@
         #filter-container select,
         #jump-container select,
         #highlight-toggle-container button {
-            padding: 0.6rem 1.5rem;
-            /* Increase padding to add space around the dropdown arrow */
-            font-size: 1.2rem;
-            /* Ensure dropdowns and buttons have consistent font size */
-            font-family: 'Segoe UI', sans-serif;
+            padding: 0.5rem 1rem;
+            /* Adjust padding for a more compact look */
+            font-size: 0.9rem;
+            /* Reduce font size for menu items and buttons */
+            font-family: 'Inter', sans-serif;
             border: 1px solid #555;
             border-radius: 25px;
             background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
@@ -274,25 +301,57 @@
             border-color: #4a90e2;
             box-shadow: 0 0 8px #4a90e2;
         }
+
+        .filter-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        select,
+        button {
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            background: #111827;
+            color: #f9fafb;
+            border: 1px solid #374151;
+            border-radius: 6px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #f9fafb;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #9ca3af;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
     </style>
 </head>
 
 <body>
     <h1>LC / ME Research Updates</h1>
-    <div id="filter-container">
-        <label for="tag-filter">Filter by tag:</label>
-        <select id="tag-filter" onchange="filterByTag()">
-            <option value="all">All</option>
-        </select>
-    </div>
-    <div id="jump-container">
-        <label for="month-year-jump">Jump to:</label>
-        <select id="month-year-jump" onchange="jumpToMonthYear()">
-            <option value="">Select a month/year</option>
-        </select>
-    </div>
-    <div id="highlight-toggle-container">
-        <button id="highlight-toggle" onclick="toggleHighlights()">Show Highlights Only</button>
+    <div class="filter-wrapper">
+        <div id="filter-container">
+            <label for="tag-filter">Filter by tag:</label>
+            <select id="tag-filter" onchange="filterByTag()">
+                <option value="all">All</option>
+            </select>
+        </div>
+        <div id="jump-container">
+            <label for="month-year-jump">Jump to:</label>
+            <select id="month-year-jump" onchange="jumpToMonthYear()">
+                <option value="">Select a month/year</option>
+            </select>
+        </div>
+        <div id="highlight-toggle-container">
+            <button id="highlight-toggle" onclick="toggleHighlights()">Show Highlights Only</button>
+        </div>
     </div>
     <div id="timeline" class="timeline">Loading updates...</div>
     <button id="return-to-top" onclick="scrollToTop()">↑</button>
@@ -317,7 +376,7 @@
                 card.classList.add('highlight');
             }
             const bulletPoints = data.Description.split('.,').map(item => `<li>${item.trim()}</li>`).join('');
-            const tags = data.Tags.split(',').map(tag => `<span class='hashtag' onclick='filterTimeline("${tag.trim()}")'>#${tag.trim()}</span>`).join(' ');
+            const tags = data.Tags.split(',').map(tag => `<span class='hashtag' onclick='filterByTagPill("${tag.trim()}")'>${tag.trim()}</span>`).join(' ');
             card.innerHTML = `
                 <h3>${data.Headline}</h3>
                 <h4>${data['Short text']}</h4>
@@ -327,6 +386,23 @@
                 <p><a href="${data.Link}" target="_blank">Read more</a></p>
             `;
             return card;
+        }
+
+        function filterByTagPill(tag) {
+            const cards = document.querySelectorAll('.card');
+            const filterDropdown = document.getElementById('tag-filter');
+
+            // Update the dropdown to reflect the active filter
+            filterDropdown.value = tag;
+
+            cards.forEach(card => {
+                const cardTags = card.querySelector('.tags').textContent;
+                if (cardTags.includes(tag)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
         }
 
         function populateTagFilter(tags) {
@@ -342,6 +418,8 @@
 
         function populateMonthYearJump(monthYears) {
             const jumpDropdown = document.getElementById('month-year-jump');
+            jumpDropdown.innerHTML = '<option value="">Select a month/year</option>'; // Reset options
+            monthYears.sort((a, b) => new Date(b) - new Date(a)); // Sort in reverse chronological order
             monthYears.forEach(monthYear => {
                 const option = document.createElement('option');
                 option.value = monthYear;
