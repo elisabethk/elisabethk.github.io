@@ -16,7 +16,7 @@
             /* Lighter text color for better contrast */
             margin: 0;
             padding: 2rem;
-            font-size: 1rem;
+            font-size: 0.9rem;
             /* Reduce base font size slightly */
         }
 
@@ -46,8 +46,8 @@
             padding: 1rem 1.5rem;
             background: #2e2e2e;
             color: #e0e0e0;
-            border-left: 4px solid #3b82f6;
-            /* blue accent */
+            border-left: 6px solid #3b82f6;
+            /* Thicker blue accent bar */
             /* Lighter text color for better contrast */
             border-radius: 0.5rem;
             box-shadow: 0 2px 5px rgba(255, 255, 255, 0.1);
@@ -64,16 +64,8 @@
         }
 
         .card::before {
-            content: '';
-            position: absolute;
-            left: -2.25rem;
-            top: 1rem;
-            width: 10px;
-            height: 10px;
-            background-color: #0ea5e9;
-            border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 0 0 2px #ccc;
+            display: none;
+            /* Hide the dot marker */
         }
 
         .card h2 {
@@ -85,14 +77,20 @@
         .card h3 {
             margin: 0.25rem 0 0.5rem;
             font-weight: normal;
-            color: #d0f0ff;
-            font-size: 1.2rem;
+            color: #a3d7ef;
+            font-size: 1.1rem;
             /* Adjust headline font size */
         }
 
         .card h4 {
-            font-size: 1rem;
+            font-size: 0.9rem;
             /* Adjust subheading font size */
+        }
+
+        .card .card-date {
+            color: #eedb8f;
+            /* cornflower yellow */
+            font-weight: 600;
         }
 
         .card p {
@@ -110,6 +108,7 @@
         .card ul li {
             margin-left: 0;
             padding-left: 0;
+            margin-bottom: 0.4em;
         }
 
         .card a {
@@ -263,6 +262,15 @@
                 height: 40px;
                 font-size: 1.2rem;
             }
+
+            .timeline {
+                margin-left: 0.5rem;
+                padding-left: 0.85rem;
+            }
+
+            .card::before {
+                left: -0.85rem;
+            }
         }
 
 
@@ -344,7 +352,7 @@
         h1 {
             font-size: 1.4rem;
             font-weight: 700;
-            color: #f9fafb;
+            color: #eedb8f;
             margin-bottom: 0.7rem;
             margin-top: 0.3rem;
         }
@@ -403,8 +411,7 @@
             const tags = data.Tags.split(',').map(tag => `<span class='hashtag' onclick='filterByTagPill("${tag.trim()}")'>${tag.trim()}</span>`).join(' ');
             card.innerHTML = `
                 <h3>${data.Headline}</h3>
-                <h4>${data['Short text']}</h4>
-                <p><strong>Date:</strong> ${formatDate(data.Date)}</p>
+                <h4><span class="card-date">${formatDate(data.Date)}</span>:  ${data['Short text']}</h4>
                 <ul>${bulletPoints}</ul>
                 <div class="tags">${tags}</div>
                 <p><a href="${data.Link}" target="_blank">Read more</a></p>
