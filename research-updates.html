@@ -25,8 +25,8 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            margin-left: 2rem;
-            padding-left: 2rem;
+            margin-left: 1rem;
+            padding-left: 1.7rem;
             border-left: 2px solid #ccc;
         }
 
@@ -66,7 +66,7 @@
         .card::before {
             content: '';
             position: absolute;
-            left: -2.5rem;
+            left: -2.15rem;
             top: 1rem;
             width: 10px;
             height: 10px;
@@ -103,7 +103,13 @@
 
         .card ul {
             font-size: 1rem;
-            /* Adjust bullet point font size */
+            padding-left: 1.2rem;
+            margin-left: 0;
+        }
+
+        .card ul li {
+            margin-left: 0;
+            padding-left: 0;
         }
 
         .card a {
@@ -150,7 +156,7 @@
             font-size: 1.5rem;
             font-weight: 600;
             color: #93c5fd;
-            margin-top: 2rem;
+            margin-top: 1rem;
             border-bottom: 1px solid #374151;
             padding-bottom: 0.8rem;
         }
@@ -195,8 +201,13 @@
             }
 
             h1 {
-                font-size: 1.5rem;
-                margin-bottom: 1rem;
+                font-size: 1.1rem;
+                margin-bottom: 0.1rem;
+            }
+
+            .subtitle {
+                font-size: 0.85rem;
+                margin-bottom: 0.5rem;
             }
 
             .card {
@@ -222,19 +233,29 @@
                 font-size: 0.9rem;
             }
 
+            .tags .hashtag {
+                margin-bottom: 0.2rem;
+            }
+
             #filter-container,
             #jump-container,
             #highlight-toggle-container {
                 display: block;
-                margin-bottom: 1rem;
+                margin-bottom: 0.5rem;
             }
 
             #filter-container select,
             #jump-container select,
             #highlight-toggle-container button {
                 width: 100%;
-                font-size: 1.1rem;
-                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+                padding: 0.3rem 0.5rem;
+                margin-bottom: 0.3rem;
+            }
+
+            .filter-wrapper {
+                gap: 0.2rem;
+                margin-bottom: 0.5rem;
             }
 
             #return-to-top {
@@ -266,7 +287,7 @@
         #filter-container select,
         #jump-container select,
         #highlight-toggle-container button {
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 0.5rem;
             /* Adjust padding for a more compact look */
             font-size: 0.9rem;
             /* Reduce font size for menu items and buttons */
@@ -305,14 +326,15 @@
         .filter-wrapper {
             display: flex;
             flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            gap: 0.2rem;
+            margin-bottom: 0.3rem;
+            align-items: center;
         }
 
         select,
         button {
             font-size: 1rem;
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 0.7rem;
             background: #111827;
             color: #f9fafb;
             border: 1px solid #374151;
@@ -320,16 +342,18 @@
         }
 
         h1 {
-            font-size: 2rem;
+            font-size: 1.4rem;
             font-weight: 700;
             color: #f9fafb;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.7rem;
+            margin-top: 0.3rem;
         }
 
         .subtitle {
             color: #9ca3af;
-            font-size: 1rem;
-            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            margin-bottom: 0.7rem;
+            margin-top: 0;
         }
     </style>
 </head>
@@ -338,19 +362,19 @@
     <h1>LC / ME Research Updates</h1>
     <div class="filter-wrapper">
         <div id="filter-container">
-            <label for="tag-filter">Filter by tag:</label>
+            <label for="tag-filter" style="display:none;">Filter by tag:</label>
             <select id="tag-filter" onchange="filterByTag()">
                 <option value="all">All</option>
             </select>
         </div>
         <div id="jump-container">
-            <label for="month-year-jump">Jump to:</label>
+            <label for="month-year-jump" style="display:none;">Jump to:</label>
             <select id="month-year-jump" onchange="jumpToMonthYear()">
                 <option value="">Select a month/year</option>
             </select>
         </div>
         <div id="highlight-toggle-container">
-            <button id="highlight-toggle" onclick="toggleHighlights()">Show Highlights Only</button>
+            <button id="highlight-toggle" onclick="toggleHighlights()">Highlights Only</button>
         </div>
     </div>
     <div id="timeline" class="timeline">Loading updates...</div>
@@ -407,7 +431,7 @@
 
         function populateTagFilter(tags) {
             const filter = document.getElementById('tag-filter');
-            filter.innerHTML = '<option value="all">All</option>'; // Reset options
+            filter.innerHTML = '<option value="all">All tags</option>'; // Reset options
             tags.forEach(tag => {
                 const option = document.createElement('option');
                 option.value = tag;
@@ -418,7 +442,7 @@
 
         function populateMonthYearJump(monthYears) {
             const jumpDropdown = document.getElementById('month-year-jump');
-            jumpDropdown.innerHTML = '<option value="">Select a month/year</option>'; // Reset options
+            jumpDropdown.innerHTML = '<option value="">Jump to M/Y</option>'; // Reset options
             monthYears.sort((a, b) => new Date(b) - new Date(a)); // Sort in reverse chronological order
             monthYears.forEach(monthYear => {
                 const option = document.createElement('option');
@@ -525,7 +549,7 @@
         function toggleHighlights() {
             showHighlightsOnly = !showHighlightsOnly;
             const toggleButton = document.getElementById('highlight-toggle');
-            toggleButton.textContent = showHighlightsOnly ? 'Show All' : 'Show Highlights Only';
+            toggleButton.textContent = showHighlightsOnly ? 'Show All' : 'Highlights Only';
 
             const cards = document.querySelectorAll('.card');
             cards.forEach(card => {
