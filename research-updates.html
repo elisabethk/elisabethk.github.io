@@ -150,12 +150,19 @@
             margin-right: 0.5rem;
             margin-bottom: 0.5rem;
             cursor: pointer;
-            transition: background 0.2s ease;
+            transition: background 0.2s ease, color 0.2s;
         }
 
         .tags .hashtag:hover {
             background: #2563eb;
             /* Darker blue on hover */
+        }
+
+        .tags .hashtag.active {
+            background: #eedb8f;
+            color: #1e1e1e;
+            font-weight: bold;
+            border: 1px solid #eedb8f;
         }
 
         .link {
@@ -450,6 +457,15 @@
             // Update the dropdown to reflect the active filter
             filterDropdown.value = tag;
 
+            // Remove 'active' from all tag pills, then add to selected
+            document.querySelectorAll('.tags .hashtag').forEach(el => {
+                if (el.textContent === tag) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
+
             cards.forEach(card => {
                 const cardTags = card.querySelector('.tags').textContent;
                 if (cardTags.includes(tag)) {
@@ -498,9 +514,17 @@
         function filterByTag() {
             const selectedTag = document.getElementById('tag-filter').value;
             const cards = document.querySelectorAll('.card');
+            // Remove 'active' from all tag pills, then add to selected (if not 'all')
+            document.querySelectorAll('.tags .hashtag').forEach(el => {
+                if (selectedTag !== 'all' && el.textContent === selectedTag) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
             cards.forEach(card => {
-                const cardTags = card.querySelector('.tags').textContent;
-                if (selectedTag === 'all' || cardTags.includes(`#${selectedTag}`)) {
+                const cardTags = Array.from(card.querySelectorAll('.tags .hashtag')).map(e => e.textContent);
+                if (selectedTag === 'all' || cardTags.includes(selectedTag)) {
                     card.style.display = 'block';
                 } else {
                     card.style.display = 'none';
