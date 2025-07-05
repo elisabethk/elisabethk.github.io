@@ -85,6 +85,11 @@
             /* Subtle darker tone for winter */
         }
 
+        .timeline-item.transition {
+            background: linear-gradient(135deg, rgba(19, 50, 32, 1), rgba(200, 220, 180, 0.2));
+            /* Subtle greenish tone for transition months */
+        }
+
         .timeline-item:hover {
             background-color: #014d3b;
             /* Slightly lighter forest green on hover */
@@ -187,15 +192,19 @@
                 const csvText = await response.text();
                 const rows = csvText.split('\n').slice(1); // Skip the header row
 
+                const validRows = rows
+                    .map(row => row.split(',').map(col => col.trim())) // Trim all columns
+                    .filter(columns => columns.length >= 4 && columns[0]); // Keep rows with valid dates
+
+                // Sort rows by date
+                validRows.sort((a, b) => new Date(a[0]) - new Date(b[0]));
+
                 let currentYear = null;
                 const today = new Date();
                 let firstFutureItem = null;
 
-                rows.forEach(row => {
-                    const columns = row.split(',').map(col => col.trim()); // Trim all columns to remove extra whitespace
-                    if (columns.length < 4 || !columns[0]) return; // Skip rows with fewer than 4 columns or missing date
-
-                    const [date, heading, description, key, link] = columns; // Updated column order
+                validRows.forEach(columns => {
+                    const [date, heading, description, key, link] = columns;
 
                     if (date && heading && description) {
                         const itemDate = new Date(date);
@@ -217,8 +226,10 @@
                         // Apply seasonal gradient for southern hemisphere
                         if (month === 10 || month === 11 || month === 3 || month === 12 || month <= 2) {
                             timelineItem.classList.add('summer'); // Summer: October, November, December, January, February, March
-                        } else if (month >= 6 && month <= 8) {
-                            timelineItem.classList.add('winter'); // Winter: June, July, August
+                        } else if (month >= 5 && month <= 8) {
+                            timelineItem.classList.add('winter'); // Winter: May, June, July, August
+                        } else if (month === 4 || month === 9 || month === 10) {
+                            timelineItem.classList.add('transition'); // Transition: April, September, October
                         }
 
                         timelineItem.innerHTML = `
