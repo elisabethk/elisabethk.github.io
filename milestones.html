@@ -171,11 +171,14 @@
                 let currentYear = null;
 
                 rows.forEach(row => {
-                    const [date, heading, description, link, key] = row.split(',');
+                    const columns = row.split(',').map(col => col.trim()); // Trim all columns to remove extra whitespace
+                    if (columns.length < 3 || !columns[0]) return; // Skip rows with fewer than 3 columns or missing date
 
-                    if (date && heading && description && link) {
-                        const year = new Date(date.trim()).getFullYear();
-                        const month = new Date(date.trim()).getMonth() + 1; // Months are 0-indexed
+                    const [date, heading, description, link, key] = columns;
+
+                    if (date && heading && description) {
+                        const year = new Date(date).getFullYear();
+                        const month = new Date(date).getMonth() + 1; // Months are 0-indexed
 
                         if (year !== currentYear) {
                             currentYear = year;
@@ -197,13 +200,13 @@
                         }
 
                         timelineItem.innerHTML = `
-                            <div class="date">${date.trim()}</div>
+                            <div class="date">${date}</div>
                             <h3>
-                                ${heading.trim()}
-                                ${key && key.trim() === 'x' ? '⭐' : ''} <!-- Simple flat yellow heart -->
+                                ${heading}
+                                ${key === 'x' ? '⭐' : ''} <!-- Simple flat yellow heart -->
                             </h3>
-                            <p>${description.trim()}</p>
-                            <a href="${link.trim()}" target="_blank">Learn more</a>
+                            <p>${description}</p>
+                            ${link ? `<a href="${link}" target="_blank">Learn more</a>` : ''} <!-- Include link only if it exists -->
                         `;
 
                         timelineContainer.appendChild(timelineItem);
