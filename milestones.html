@@ -151,6 +151,25 @@
             color: #e8f5e9;
             /* Light green for the main heading */
         }
+
+        /* Update styles for the "Today" marker */
+        .today-marker {
+            position: absolute;
+            left: -1.5rem;
+            /* Move to the left of the timeline line */
+            width: 24px;
+            /* Twice as big */
+            height: 24px;
+            /* Twice as big */
+            background: none;
+            /* Remove background color */
+            font-size: 1.5rem;
+            /* Size for the sun emoji */
+            text-align: center;
+            line-height: 24px;
+            /* Center the emoji */
+            transform: translateY(-50%);
+        }
     </style>
 </head>
 
@@ -169,6 +188,8 @@
                 const rows = csvText.split('\n').slice(1); // Skip the header row
 
                 let currentYear = null;
+                const today = new Date();
+                let firstFutureItem = null;
 
                 rows.forEach(row => {
                     const columns = row.split(',').map(col => col.trim()); // Trim all columns to remove extra whitespace
@@ -177,8 +198,9 @@
                     const [date, heading, description, link, key] = columns;
 
                     if (date && heading && description) {
-                        const year = new Date(date).getFullYear();
-                        const month = new Date(date).getMonth() + 1; // Months are 0-indexed
+                        const itemDate = new Date(date);
+                        const year = itemDate.getFullYear();
+                        const month = itemDate.getMonth() + 1; // Months are 0-indexed
 
                         if (year !== currentYear) {
                             currentYear = year;
@@ -210,8 +232,22 @@
                         `;
 
                         timelineContainer.appendChild(timelineItem);
+
+                        // Find the first future item
+                        if (!firstFutureItem && itemDate > today) {
+                            firstFutureItem = timelineItem;
+                        }
                     }
                 });
+
+                // Add "Today" marker before the first future item
+                if (firstFutureItem) {
+                    const todayMarker = document.createElement('div');
+                    todayMarker.className = 'today-marker';
+                    todayMarker.textContent = '☀️'; // Sun emoji
+                    firstFutureItem.parentNode.insertBefore(todayMarker, firstFutureItem);
+                    todayMarker.style.top = `${firstFutureItem.offsetTop}px`; // Position the marker at the correct height
+                }
             } catch (error) {
                 console.error('Error fetching timeline data:', error);
             }
