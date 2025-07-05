@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milestones</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", sans-serif;
+            background-color: #001a12;
+            /* Very dark green */
+            color: #e8f5e9;
+            /* Light green for text */
+            padding: 2rem;
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            padding-left: 2rem;
+            /* Adjusted space for the timeline */
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 1rem;
+            width: 4px;
+            height: 100%;
+            background: #e8f5e9;
+            /* Light green for the timeline line */
+        }
+
+        .year-marker {
+            position: absolute;
+            left: -2.5rem;
+            /* Position the year marker to the left of the timeline */
+            font-size: 1rem;
+            font-weight: bold;
+            color: #e8f5e9;
+            /* Light green for year markers */
+            transform: translateY(-50%);
+        }
+
+        .year-break {
+            position: relative;
+            font-size: 2.1rem;
+            /* Larger font size for year markers */
+            font-weight: bold;
+            color: #e8f5e9;
+            /* Light green for year breaks */
+            margin: 1.5rem 0;
+            padding-left: 0.5rem;
+            /* Remove padding for alignment */
+        }
+
+        .timeline-item {
+            display: flex;
+            flex-direction: column;
+            background: #013220;
+            /* Default deep forest green */
+            color: #e8f5e9;
+            /* Light green for text inside cards */
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            position: relative;
+            transition: box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+
+        .timeline-item.summer {
+            background: linear-gradient(135deg, rgba(19, 50, 32, 1), rgba(247, 233, 160, 0.2));
+            /* Subtle yellowish tone for summer */
+        }
+
+        .timeline-item.winter {
+            background: linear-gradient(135deg, rgba(19, 50, 32, 1), rgba(0, 26, 18, 0.2));
+            /* Subtle darker tone for winter */
+        }
+
+        .timeline-item:hover {
+            background-color: #014d3b;
+            /* Slightly lighter forest green on hover */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            /* Enhanced shadow for highlight */
+        }
+
+        .timeline-item[data-year]::before {
+            content: attr(data-year);
+            /* Display the year as a marker */
+            position: absolute;
+            left: -2.5rem;
+            top: 0;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #e8f5e9;
+            /* Light green for year markers */
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 1.5rem;
+            width: 12px;
+            height: 12px;
+            background: #e8f5e9;
+            /* Light green for the markers */
+            border-radius: 50%;
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .timeline-item h3 {
+            margin: 0 0 0.5rem;
+            color: #e8f5e9;
+            /* Light green for headings */
+        }
+
+        .timeline-item p {
+            margin: 0 0 1rem;
+            color: #ffffff;
+            /* White for descriptions */
+        }
+
+        .timeline-item a {
+            color: #e8f5e9;
+            /* Light green for links */
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .timeline-item a:hover {
+            text-decoration: underline;
+        }
+
+        .date {
+            font-size: 0.9rem;
+            color: #b2dfdb;
+            /* Softer light green for dates */
+            margin-bottom: 0.5rem;
+        }
+
+        h1 {
+            color: #e8f5e9;
+            /* Light green for the main heading */
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Milestones</h1>
+    <div class="timeline" id="timeline"></div>
+
+    <script>
+        const timelineContainer = document.getElementById('timeline');
+        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS-wPi7MhttVOJ7l-A2x5oUedIaXLA8tv7M4dKRtgYI-JTuDSUFPiciVQmSj1SzXYB9Y06Q_57s_3qE/pub?gid=0&single=true&output=csv';
+
+        async function fetchTimelineData() {
+            try {
+                const response = await fetch(csvUrl);
+                const csvText = await response.text();
+                const rows = csvText.split('\n').slice(1); // Skip the header row
+
+                let currentYear = null;
+
+                rows.forEach(row => {
+                    const [date, heading, description, link, key] = row.split(',');
+
+                    if (date && heading && description && link) {
+                        const year = new Date(date.trim()).getFullYear();
+                        const month = new Date(date.trim()).getMonth() + 1; // Months are 0-indexed
+
+                        if (year !== currentYear) {
+                            currentYear = year;
+
+                            const yearBreak = document.createElement('div');
+                            yearBreak.className = 'year-break';
+                            yearBreak.textContent = currentYear;
+                            timelineContainer.appendChild(yearBreak);
+                        }
+
+                        const timelineItem = document.createElement('div');
+                        timelineItem.className = 'timeline-item';
+
+                        // Apply seasonal gradient for southern hemisphere
+                        if (month === 10 || month === 11 || month === 3 || month === 12 || month <= 2) {
+                            timelineItem.classList.add('summer'); // Summer: October, November, December, January, February, March
+                        } else if (month >= 6 && month <= 8) {
+                            timelineItem.classList.add('winter'); // Winter: June, July, August
+                        }
+
+                        timelineItem.innerHTML = `
+                            <div class="date">${date.trim()}</div>
+                            <h3>
+                                ${heading.trim()}
+                                ${key && key.trim() === 'x' ? '⭐' : ''} <!-- Simple flat yellow heart -->
+                            </h3>
+                            <p>${description.trim()}</p>
+                            <a href="${link.trim()}" target="_blank">Learn more</a>
+                        `;
+
+                        timelineContainer.appendChild(timelineItem);
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching timeline data:', error);
+            }
+        }
+
+        fetchTimelineData();
+    </script>
+</body>
+
+</html>
