@@ -193,9 +193,9 @@
 
                 rows.forEach(row => {
                     const columns = row.split(',').map(col => col.trim()); // Trim all columns to remove extra whitespace
-                    if (columns.length < 3 || !columns[0]) return; // Skip rows with fewer than 3 columns or missing date
+                    if (columns.length < 4 || !columns[0]) return; // Skip rows with fewer than 4 columns or missing date
 
-                    const [date, heading, description, link, key] = columns;
+                    const [date, heading, description, key, link] = columns; // Updated column order
 
                     if (date && heading && description) {
                         const itemDate = new Date(date);
