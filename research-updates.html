@@ -32,6 +32,19 @@
             letter-spacing: 0.01em;
         }
 
+        h1 {
+            font-size: 2.5rem;
+            /* Larger font size for a modern look */
+            font-weight: 700;
+            background: linear-gradient(135deg, #81c2ea, #4f9dc2);
+            /* Gradient text effect */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 1rem;
+        }
+
         /* Timeline container with vertical line */
         .timeline {
             display: flex;
@@ -39,7 +52,7 @@
             position: relative;
             margin-left: 1rem;
             padding-left: 1.7rem;
-            border-left: 2px solid #ccc;
+            border-left: 2px solid #b2b2b2;
         }
 
         .timeline::before {
@@ -50,6 +63,20 @@
             bottom: 0;
             width: 2px;
             background-color: #ccc;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -7px;
+            /* Align with the timeline line */
+            width: 14px;
+            height: 14px;
+            background: linear-gradient(135deg, #7cbfe3, #4f9dc2);
+            /* Slight gradient for the marker */
+            border-radius: 110%;
+            box-shadow: 0px 0px 8px rgba(174, 195, 195, 0.4);
+            transform: translateY(calc(50% - 6px));
+            /* Center marker vertically with the heading */
         }
 
         .card {
@@ -381,11 +408,16 @@
         }
 
         h1 {
-            font-size: 1.4rem;
+            font-size: 1.8rem;
+            /* Larger font size for a modern look */
             font-weight: 700;
-            color: #eedb8f;
-            margin-bottom: 0.7rem;
-            margin-top: 0.3rem;
+            background: linear-gradient(135deg, #fae96b, #f8f7f0);
+            /* Gradient text effect */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: left;
+            text-shadow: 0 2px 4px rgba(159, 159, 159, 0.2);
+            margin-bottom: 0.2rem;
         }
 
         .subtitle {
@@ -415,11 +447,23 @@
             background: linear-gradient(135deg, rgb(7, 20, 43), rgba(163, 163, 218, 0.2));
             /* Deep blue to orange for autumn */
         }
+
+        /* Add gradient line under the heading */
+        .heading-line {
+            width: 50%;
+            height: 4px;
+            background: linear-gradient(135deg, rgb(25, 48, 69), rgba(150, 181, 206, 0.2));
+            /* Same gradient as winter card */
+            margin: 0 0 1.5rem 0;
+            /* Left-align the line */
+            border-radius: 2px;
+        }
     </style>
 </head>
 
 <body>
     <h1>Long Covid & ME/CFS Research Updates</h1>
+    <div class="heading-line"></div> <!-- Gradient line under the heading -->
     <div class="filter-wrapper">
         <div id="filter-container">
             <label for="tag-filter" style="display:none;">Filter by tag:</label>
@@ -606,6 +650,12 @@
                             }
 
                             timeline.appendChild(card);
+
+                            // Add a marker for the card
+                            const marker = document.createElement('div');
+                            marker.className = 'timeline-marker';
+                            marker.style.top = `${card.offsetTop + card.querySelector('h3').offsetTop}px`; // Align with the heading
+                            timeline.appendChild(marker);
 
                             // Collect tags
                             entry.Tags.split(',').forEach(tag => allTags.add(tag.trim()));
