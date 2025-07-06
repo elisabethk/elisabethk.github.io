@@ -13,7 +13,7 @@
     <style>
         body {
             font-family: 'Raleway', 'Inter', 'Segoe UI', 'Roboto', 'Arial', sans-serif;
-            background: #1e1e1e;
+            background: #151515;
             color: #e0e0e0;
             /* Lighter text color for better contrast */
             margin: 0;
@@ -58,7 +58,7 @@
             padding: 1rem 1.5rem;
             background: #2e2e2e;
             color: #e0e0e0;
-            border-left: 6px solid #3b82f6;
+            border-left: 4px solid #4f9dc2;
             /* Thicker blue accent bar */
             /* Lighter text color for better contrast */
             border-radius: 0.5rem;
@@ -139,7 +139,7 @@
 
         .tags .hashtag {
             display: inline-block;
-            background: #233f6c;
+            background: #23466c;
             /* Blue background for badges */
             color: #ffffff;
             /* White text for contrast */
@@ -176,7 +176,7 @@
             font-family: 'Montserrat', 'Modernist', 'Modern Sans', 'Inter', 'Segoe UI', 'Roboto', 'Arial', sans-serif;
             font-size: 1.3rem;
             font-weight: 600;
-            color: #93c5fd;
+            color: #81c2ea;
             margin-top: 1rem;
             border-bottom: 1px solid #374151;
             padding-bottom: 0.8rem;
@@ -194,7 +194,7 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: #0ea5e9;
+            background: #126084;
             color: white;
             border: none;
             border-radius: 50%;
@@ -205,7 +205,7 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 5px rgba(207, 207, 207, 0.3);
             z-index: 1000;
             display: none;
             /* Hidden by default */
@@ -235,7 +235,7 @@
                 padding: 1rem;
                 font-size: 1.05rem;
                 box-shadow: none;
-                border: 1px solid #444;
+                border: 1px solid #465b71;
             }
 
             .card h3 {
@@ -322,19 +322,19 @@
             font-size: 0.9rem;
             /* Reduce font size for menu items and buttons */
             font-family: 'Inter', sans-serif;
-            border: 1px solid #555;
+            border: 1px solid #868d90;
             border-radius: 25px;
-            background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
+            background: linear-gradient(145deg, #171f29, #1e2429);
             color: #ffffff;
             /* Change font color to white for better contrast */
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 6px rgba(28, 28, 28, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.1);
         }
 
         #filter-container select,
         #jump-container select {
-            background-color: #333333;
+            background-color: #001a29;
             /* Ensure dark gray background from the start */
         }
 
@@ -389,10 +389,31 @@
         }
 
         .subtitle {
-            color: #9ca3af;
+            color: #9ca7af;
             font-size: 0.95rem;
             margin-bottom: 0.7rem;
             margin-top: 0;
+        }
+
+        /* Add seasonal gradient styles */
+        .card.summer {
+            background: linear-gradient(135deg, rgb(5, 16, 34), rgba(49, 156, 156, 0.2));
+            /* Deep blue to teal for summer */
+        }
+
+        .card.winter {
+            background: linear-gradient(135deg, rgb(4, 13, 29), rgba(112, 165, 209, 0.2));
+            /* Deep blue to steel blue for winter */
+        }
+
+        .card.spring {
+            background: linear-gradient(135deg, rgb(6, 17, 37), rgba(131, 182, 131, 0.2));
+            /* Deep blue to light green for spring */
+        }
+
+        .card.autumn {
+            background: linear-gradient(135deg, rgb(7, 20, 43), rgba(163, 163, 218, 0.2));
+            /* Deep blue to orange for autumn */
         }
     </style>
 </head>
@@ -559,6 +580,8 @@
 
                         data.forEach(entry => {
                             const currentMonthYear = formatMonthYear(entry['Date']);
+                            const entryDate = new Date(entry['Date']);
+                            const month = entryDate.getMonth() + 1; // Months are 0-indexed
 
                             if (currentMonthYear !== lastMonthYear) {
                                 const monthYearLabel = document.createElement('div');
@@ -570,6 +593,18 @@
                             }
 
                             const card = createCard(entry);
+
+                            // Apply seasonal gradient
+                            if (month >= 10 || month <= 3) {
+                                card.classList.add('summer'); // Australian summer: October-March
+                            } else if (month >= 4 && month <= 5) {
+                                card.classList.add('autumn'); // Australian autumn: April-May
+                            } else if (month >= 6 && month <= 8) {
+                                card.classList.add('winter'); // Australian winter: June-August
+                            } else if (month >= 9 && month <= 9) {
+                                card.classList.add('spring'); // Australian spring: September
+                            }
+
                             timeline.appendChild(card);
 
                             // Collect tags
