@@ -524,6 +524,7 @@
                 filterDropdown.value = 'all';
                 document.querySelectorAll('.tags .hashtag').forEach(e => e.classList.remove('active'));
                 document.querySelectorAll('.card').forEach(card => card.style.display = 'block');
+                document.querySelectorAll('.timeline-marker').forEach(marker => marker.style.display = 'block');
                 return;
             }
             // Otherwise, activate this tag
@@ -535,12 +536,17 @@
                     e.classList.remove('active');
                 }
             });
-            document.querySelectorAll('.card').forEach(card => {
+            const cards = document.querySelectorAll('.card');
+            const markers = document.querySelectorAll('.timeline-marker');
+            cards.forEach((card, index) => {
                 const cardTags = card.querySelector('.tags').textContent;
+                const marker = markers[index]; // Match marker with card by index
                 if (cardTags.includes(tag)) {
                     card.style.display = 'block';
+                    if (marker) marker.style.display = 'block'; // Show corresponding marker
                 } else {
                     card.style.display = 'none';
+                    if (marker) marker.style.display = 'none'; // Hide corresponding marker
                 }
             });
         }
@@ -583,6 +589,8 @@
         function filterByTag() {
             const selectedTag = document.getElementById('tag-filter').value;
             const cards = document.querySelectorAll('.card');
+            const markers = document.querySelectorAll('.timeline-marker');
+
             // Remove 'active' from all tag pills, then add to selected (if not 'all')
             document.querySelectorAll('.tags .hashtag').forEach(el => {
                 if (selectedTag !== 'all' && el.textContent === selectedTag) {
@@ -591,12 +599,16 @@
                     el.classList.remove('active');
                 }
             });
-            cards.forEach(card => {
+
+            cards.forEach((card, index) => {
                 const cardTags = Array.from(card.querySelectorAll('.tags .hashtag')).map(e => e.textContent);
+                const marker = markers[index]; // Match marker with card by index
                 if (selectedTag === 'all' || cardTags.includes(selectedTag)) {
                     card.style.display = 'block';
+                    if (marker) marker.style.display = 'block'; // Show corresponding marker
                 } else {
                     card.style.display = 'none';
+                    if (marker) marker.style.display = 'none'; // Hide corresponding marker
                 }
             });
         }
