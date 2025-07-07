@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Slow Falling Sand</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            background: #111;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const startTime = new Date("2025-07-01T00:00:00Z");
+        const endTime = new Date("2025-08-10T00:00:00Z");
+        const totalDuration = endTime - startTime;
+
+        let particles = [];
+        const maxParticles = 1200;
+        const gravity = 0.005;  // much slower falling
+        const streamX = canvas.width / 2;
+        const streamWidth = 2;
+
+        class Particle {
+            constructor() {
+                this.x = streamX + (Math.random() - 0.5) * streamWidth;
+                this.y = 0;
+                this.vy = 0;
+                this.size = 1 + Math.random() * 0.5;
+                this.settled = false;
+            }
+
+            update(pileHeight) {
+                if (!this.settled) {
+                    this.vy += gravity;
+                    this.y += this.vy;
+
+                    const pileY = canvas.height - pileHeightAtX(this.x);
+                    if (this.y + this.size >= pileY) {
+                        this.y = pileY - this.size;
+                        this.settled = true;
+                    }
+                }
+            }
+
+            draw() {
+                ctx.fillStyle = "gold";
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function getGlobalPileHeight() {
+            const now = new Date();
+            const elapsed = Math.min(now - startTime, totalDuration);
+            const progress = elapsed / totalDuration;
+            return progress * canvas.height * 0.4;
+        }
+
+        function pileHeightAtX(x) {
+            const fullHeight = getGlobalPileHeight();
+            const spread = canvas.width / 3;
+            const dx = Math.abs(x - streamX);
+            if (dx > spread) return 0;
+            return fullHeight * (1 - dx / spread);
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Add particles very slowly — about 1 every few frames
+            if (particles.length < maxParticles && Math.random() < 0.1) {
+                particles.push(new Particle());
+            }
+
+            const globalHeight = getGlobalPileHeight();
+
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                if (!p.settled) {
+                    p.update(globalHeight);
+                }
+                p.draw();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+
+</html>
