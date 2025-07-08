@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Falling Sand Effect</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            background: #0b0b0b;
+            /* Darker background */
+            height: 100%;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const maxParticles = 500; // Increased number of particles for rain-like effect
+        const gravity = 0.01; // Slightly faster fall for rain effect
+        const streamCount = 50; // Number of streams
+        const streamWidths = Array.from({ length: streamCount }, () => Math.random() * canvas.width * 0.001 + canvas.width * 0.005); // Random widths for each stream
+        const streamPositions = Array.from({ length: streamCount }, () => {
+            const middleThirdStart = canvas.width / 3;
+            const middleThirdEnd = canvas.width * 2 / 3;
+            const middleThirdWidth = middleThirdEnd - middleThirdStart;
+            return middleThirdStart + Math.random() * middleThirdWidth;
+        }); // Randomly distribute streams within the middle third of the screen
+
+        class Particle {
+            constructor() {
+                const streamIndex = Math.floor(Math.random() * streamCount); // Randomly assign to a stream
+                this.x = streamPositions[streamIndex] + (Math.random() - 0.5) * streamWidths[streamIndex];
+                this.y = Math.random() * canvas.height;
+                this.vy = 0.15 + Math.random() * 0.15; // Faster fall rates for rain effect
+                this.size = Math.random() * 0.15 + 0.35; // Smaller particles for rain effect
+                this.alpha = Math.random() * 0.5 + 0.5; // Random transparency for particles
+                this.hasGlow = Math.random() < 0.25; // 20% chance to have a glow
+                this.glowRadius = this.size * (7 + Math.random() * 5); // Random glow radius
+            }
+
+            update() {
+                this.y += this.vy; // Update position based on velocity
+
+                // Reset particle to top if it falls off the screen
+                if (this.y > canvas.height) {
+                    const streamIndex = Math.floor(Math.random() * streamCount); // Reassign to a random stream
+                    this.x = streamPositions[streamIndex] + (Math.random() - 0.5) * streamWidths[streamIndex];
+                    this.y = 0;
+                }
+            }
+
+            draw() {
+                ctx.globalAlpha = this.alpha; // Apply transparency
+
+                if (this.hasGlow) {
+                    // Draw glow effect
+                    const glowGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.glowRadius);
+                    glowGradient.addColorStop(0, "rgba(255, 255, 255, 0.5)"); // White glow
+                    glowGradient.addColorStop(1, "rgba(255, 255, 255, 0)"); // Fade to transparent
+
+                    ctx.fillStyle = glowGradient;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.glowRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Draw particle
+                ctx.fillStyle = "gold";
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.globalAlpha = 1; // Reset alpha
+            }
+        }
+
+        function addParticles() {
+            while (particles.length < maxParticles) {
+                particles.push(new Particle());
+            }
+        }
+
+        function frame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Update and draw all particles
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            requestAnimationFrame(frame);
+        }
+
+        // Add particles and start animation
+        addParticles();
+        frame();
+
+        // Adjust canvas size on window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            addParticles(); // Ensure enough particles are added after resize
+        });
+    </script>
+</body>
+
+</html>
