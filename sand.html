@@ -46,7 +46,7 @@
                 this.x = streamX + (Math.random() - 0.5) * effectiveStreamWidth;
                 this.y = 0;
                 this.vy = 0.08 + Math.random() * 0.3; // Slightly different fall rates
-                this.size = (canvas.width > 768 ? 0.3 : 1.5) + Math.random() * (canvas.width > 768 ? 0.3 : 1.5); // Further increased sand size on smaller screens
+                this.size = (canvas.width > 768 ? 0.3 : 2.5) + Math.random() * (canvas.width > 768 ? 0.3 : 2.5); // Further increased sand size on smaller screens
                 this.settled = false;
                 this.hasGlow = Math.random() < 0.25; // 10% chance to have a glow
                 this.glowRadius = this.size * (7 - Math.random() * 4); // Precompute glow radius
