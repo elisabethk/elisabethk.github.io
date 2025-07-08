@@ -57,7 +57,9 @@
                     this.vy += gravity; // Apply fixed gravity to velocity
                     this.y += this.vy; // Update position based on velocity
 
-                    const pileBaseY = canvas.height * 0.9; // Base of the mound
+                    // Dynamically calculate pileBaseY and moundTopY based on adjusted moundBottom
+                    const moundBottom = canvas.height * (canvas.height > 768 ? 0.9 : 0.8);
+                    const pileBaseY = moundBottom; // Base of the mound
                     const moundTopY = pileBaseY - canvas.height * 0.1; // Top of the mound shadow
 
                     if (this.y + this.size >= pileBaseY) {
@@ -135,7 +137,9 @@
         function drawMound(p, colour, alpha = 1, showTexture = true) {
             const half = canvas.width * 0.14; // 28% of width divided by 2
             const curH = canvas.height * 0.1 * p; // mound height based on progress
-            const moundBottom = canvas.height * 0.9; // bottom margin 10%
+
+            // Adjust moundBottom dynamically for smaller screens
+            const moundBottom = canvas.height * (canvas.height > 768 ? 0.9 : 0.8); // Higher position on smaller screens
             const moundCenterX = canvas.width / 2;
 
             // Draw shadow with diagonal gradient
