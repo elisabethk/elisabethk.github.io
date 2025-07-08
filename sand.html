@@ -60,14 +60,25 @@
                     this.y += this.vy; // Update position based on velocity
 
                     const pileBaseY = canvas.height * 0.9; // Base of the mound
+                    const moundTopY = pileBaseY - canvas.height * 0.1; // Top of the mound shadow
+
                     if (this.y + this.size >= pileBaseY) {
                         this.settled = true; // Mark as settled
+                        this.alpha = 0; // Fully disappear at the base
+                    } else if (this.y + this.size >= moundTopY) {
+                        // Continue fading smoothly until the base
+                        const fadeProgress = (this.y + this.size - moundTopY) / (pileBaseY - moundTopY);
+                        this.alpha = 1 - fadeProgress; // Gradually reduce alpha
+                    } else {
+                        this.alpha = 1; // Fully visible above the mound shadow
                     }
                 }
             }
 
             draw() {
                 if (!this.settled) { // Only draw particles that are still falling
+                    ctx.globalAlpha = this.alpha || 1; // Apply fading effect
+
                     if (this.hasGlow) {
                         // Draw glow effect
                         const glowGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.glowRadius);
@@ -85,6 +96,8 @@
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                     ctx.fill();
+
+                    ctx.globalAlpha = 1; // Reset alpha
                 }
             }
         }
@@ -163,6 +176,23 @@
                 }
                 ctx.closePath();
                 ctx.fillStyle = gradient;
+                ctx.fill();
+
+                // Add subtle white glow to the yellow part of the mound
+                const glowGradient = ctx.createRadialGradient(moundCenterX, moundBottom - curH / 2, 0, moundCenterX, moundBottom - curH / 2, half);
+                glowGradient.addColorStop(0, "rgba(255, 255, 255, 0.1)"); // Subtle white glow at the center
+                glowGradient.addColorStop(1, "rgba(255, 255, 255, 0)"); // Fade to transparent
+
+                ctx.fillStyle = glowGradient;
+                ctx.beginPath();
+                ctx.moveTo(moundCenterX - half, moundBottom);
+                for (let i = 0; i <= steps; i++) {
+                    const t = i / steps;
+                    const x = moundCenterX - half + t * (half * 2);
+                    const y = moundBottom - curH * Math.sin(Math.PI * t);
+                    ctx.lineTo(x, y);
+                }
+                ctx.closePath();
                 ctx.fill();
 
                 // Add grain/texture effect
