@@ -151,15 +151,16 @@
                 ctx.fillStyle = gradient;
                 ctx.fill();
 
-                // Add subtle noise texture for realism
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                for (let i = 0; i < imageData.data.length; i += 4) {
-                    const randomNoise = Math.random() * 30 - 15; // Random noise for texture
-                    imageData.data[i] += randomNoise; // Red channel
-                    imageData.data[i + 1] += randomNoise; // Green channel
-                    imageData.data[i + 2] += randomNoise; // Blue channel
+                // Add grain/texture effect
+                const grainCount = 300; // Number of grains to draw
+                ctx.fillStyle = "rgba(255, 215, 0, 0.3)"; // Gold-like color with transparency
+                for (let i = 0; i < grainCount; i++) {
+                    const grainX = moundCenterX - half + Math.random() * (half * 2);
+                    const grainY = moundBottom - Math.random() * curH * Math.sin(Math.PI * ((grainX - (moundCenterX - half)) / (half * 2)));
+                    ctx.beginPath();
+                    ctx.arc(grainX, grainY, Math.random() * 0.8 + 0.2, 0, Math.PI * 2);
+                    ctx.fill();
                 }
-                ctx.putImageData(imageData, 0, 0);
             }
         }
 
