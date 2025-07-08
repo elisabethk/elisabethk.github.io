@@ -25,8 +25,6 @@
     <script>
         const canvas = document.getElementById("canvas");
         const ctx = canvas.getContext("2d");
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
 
         let firstHitTime = null;
 
@@ -35,8 +33,8 @@
 
         const gravity = 0.0005; // Fixed gravity value for consistent falling speed
 
-        const streamX = canvas.width / 2;
-        const streamWidth = 4;
+        let streamX = canvas.width / 2;
+        let streamWidth = canvas.width * 0.01; // Adjust stream width dynamically based on canvas width
 
         const START_DATE = new Date('July 1, 2025').getTime();
         const END_DATE = new Date('August 8, 2025').getTime();
@@ -48,7 +46,7 @@
                 this.x = streamX + (Math.random() - 0.5) * effectiveStreamWidth;
                 this.y = 0;
                 this.vy = 0.08 + Math.random() * 0.3; // Slightly different fall rates
-                this.size = 0.3 + Math.random() * 0.3; // Finer sand
+                this.size = (canvas.width > 768 ? 0.3 : 0.6) + Math.random() * (canvas.width > 768 ? 0.3 : 0.6); // Larger sand on smaller screens
                 this.settled = false;
                 this.hasGlow = Math.random() < 0.25; // 10% chance to have a glow
                 this.glowRadius = this.size * (7 - Math.random() * 4); // Precompute glow radius
@@ -256,6 +254,31 @@
             }
         }
 
+        function updateCanvasSize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            // Recalculate centering values
+            streamX = canvas.width / 2;
+            moundCenterX = canvas.width / 2;
+
+            // Update existing particles to align with new streamX
+            particles.forEach(p => {
+                if (!p.settled) {
+                    const isWideRange = Math.random() < 0.1; // 20% chance for wider range
+                    const effectiveStreamWidth = isWideRange ? streamWidth * 5 : streamWidth;
+                    p.x = streamX + (Math.random() - 0.5) * effectiveStreamWidth;
+                }
+            });
+        }
+
+        // Add event listener for window resize
+        window.addEventListener('resize', () => {
+            updateCanvasSize();
+        });
+
+        // Initial call to set canvas size and centering
+        updateCanvasSize();
 
         setInterval(addParticles, 50); // Add particles more frequently for finer sand
 
