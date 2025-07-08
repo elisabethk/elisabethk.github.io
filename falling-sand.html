@@ -32,13 +32,13 @@
         const maxParticles = 500; // Increased number of particles for rain-like effect
         const gravity = 0.01; // Slightly faster fall for rain effect
         const streamCount = 50; // Number of streams
-        const streamWidths = Array.from({ length: streamCount }, () => Math.random() * canvas.width * 0.002 + canvas.width * 0.01); // Adjusted for larger streams
+        const streamWidths = Array.from({ length: streamCount }, () => Math.random() * canvas.width * 0.001 + canvas.width * 0.005); // Random widths for each stream
         const streamPositions = Array.from({ length: streamCount }, () => {
-            const middleStart = canvas.width * 0.1; // Start at 10% of the screen width
-            const middleEnd = canvas.width * 0.9; // End at 90% of the screen width
-            const middleWidth = middleEnd - middleStart;
-            return middleStart + Math.random() * middleWidth;
-        }); // Distribute streams within 80% of the screen width
+            const middleThirdStart = canvas.width / 3;
+            const middleThirdEnd = canvas.width * 2 / 3;
+            const middleThirdWidth = middleThirdEnd - middleThirdStart;
+            return middleThirdStart + Math.random() * middleThirdWidth;
+        }); // Randomly distribute streams within the middle third of the screen
 
         class Particle {
             constructor() {
@@ -46,7 +46,7 @@
                 this.x = streamPositions[streamIndex] + (Math.random() - 0.5) * streamWidths[streamIndex];
                 this.y = Math.random() * canvas.height;
                 this.vy = 0.15 + Math.random() * 0.15; // Faster fall rates for rain effect
-                this.size = (canvas.width > 768 ? Math.random() * 0.15 + 0.35 : Math.random() * 1.5 + 1.5); // Much larger particles on mobile
+                this.size = Math.random() * 0.15 + 0.35; // Smaller particles for rain effect
                 this.alpha = Math.random() * 0.5 + 0.5; // Random transparency for particles
                 this.hasGlow = Math.random() < 0.25; // 20% chance to have a glow
                 this.glowRadius = this.size * (7 + Math.random() * 5); // Random glow radius

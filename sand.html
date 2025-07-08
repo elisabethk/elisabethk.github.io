@@ -8,8 +8,7 @@
         html,
         body {
             margin: 0;
-            background: #0b0b0b;
-            /* Darker background */
+            background: #111;
             height: 100%;
             overflow: hidden;
         }
@@ -25,87 +24,56 @@
     <script>
         const canvas = document.getElementById("canvas");
         const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
         let firstHitTime = null;
+        const DURATION = 8_000; // 30 seconds
 
         let particles = [];
         const maxParticles = 1200;
 
-        const gravity = 0.0005; // Fixed gravity value for consistent falling speed
+        const gravity = canvas.height * 0.9 / Math.pow(DURATION * 0.05, 2);  // ~2.4s fall time
 
-        let streamX = canvas.width / 2;
-        let streamWidth = canvas.width * 0.01; // Adjust stream width dynamically based on canvas width
-
-        const START_DATE = new Date('May 27, 2025').getTime();
-        const END_DATE = new Date('August 8, 2025').getTime();
+        const streamX = canvas.width / 2;
+        const streamWidth = 1.2;
 
         class Particle {
             constructor() {
-                const isWideRange = Math.random() < 0.1; // 20% chance for wider range
-                const effectiveStreamWidth = isWideRange ? streamWidth * 5 : streamWidth;
-                this.x = streamX + (Math.random() - 0.5) * effectiveStreamWidth;
+                this.x = streamX + (Math.random() - 0.5) * streamWidth;
                 this.y = 0;
-                this.vy = 0.08 + Math.random() * 0.3; // Slightly different fall rates
-                this.size = (canvas.width > 768 ? 0.3 : 2.5) + Math.random() * (canvas.width > 768 ? 0.3 : 2.5); // Further increased sand size on smaller screens
+                this.vy = 0.08 + Math.random() * 0.1; // Slightly different fall rates
+                this.size = 0.3 + Math.random() * 0.3; // Finer sand
                 this.settled = false;
-                this.hasGlow = Math.random() < 0.25; // 10% chance to have a glow
-                this.glowRadius = this.size * (7 - Math.random() * 4); // Precompute glow radius
             }
 
             update() {
                 if (!this.settled) {
-                    this.vy += gravity; // Apply fixed gravity to velocity
+                    this.vy += gravity; // Apply gravity to velocity
                     this.y += this.vy; // Update position based on velocity
 
-                    // Dynamically calculate pileBaseY and moundTopY based on adjusted moundBottom
-                    const moundBottom = canvas.height * (canvas.height > 768 ? 0.9 : 0.8);
-                    const pileBaseY = moundBottom; // Base of the mound
-                    const moundTopY = pileBaseY - canvas.height * 0.1; // Top of the mound shadow
-
+                    const pileBaseY = canvas.height * 0.9; // Base of the mound
                     if (this.y + this.size >= pileBaseY) {
                         this.settled = true; // Mark as settled
-                        this.alpha = 0; // Fully disappear at the base
-                    } else if (this.y + this.size >= moundTopY) {
-                        // Continue fading smoothly until the base
-                        const fadeProgress = (this.y + this.size - moundTopY) / (pileBaseY - moundTopY);
-                        this.alpha = 1 - fadeProgress; // Gradually reduce alpha
-                    } else {
-                        this.alpha = 1; // Fully visible above the mound shadow
                     }
                 }
             }
 
             draw() {
                 if (!this.settled) { // Only draw particles that are still falling
-                    ctx.globalAlpha = this.alpha || 1; // Apply fading effect
-
-                    if (this.hasGlow) {
-                        // Draw glow effect
-                        const glowGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.glowRadius);
-                        glowGradient.addColorStop(0, "rgba(255, 255, 255, 0.5)"); // White glow
-                        glowGradient.addColorStop(1, "rgba(255, 255, 255, 0)"); // Fade to transparent
-
-                        ctx.fillStyle = glowGradient;
-                        ctx.beginPath();
-                        ctx.arc(this.x, this.y, this.glowRadius, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-
-                    // Draw particle
                     ctx.fillStyle = "gold";
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                     ctx.fill();
-
-                    ctx.globalAlpha = 1; // Reset alpha
                 }
             }
         }
 
         function getGlobalPileHeight() {
-            const now = Date.now();
+            const now = performance.now();
             if (!firstHitTime) return 0;
-            const progress = getCountdownProgress();
+            const elapsed = Math.min(now - firstHitTime, DURATION);
+            const progress = elapsed / DURATION;
             return progress * canvas.height * 0.4;
         }
 
@@ -119,34 +87,37 @@
         let cutoffTime = null;
 
         function addParticles() {
-            const now = Date.now();
+            const now = performance.now();
 
             if (!firstHitTime) {
-                particles.push(new Particle());
+                const estimatedHitTime = now;
+                const maxFallTime = Math.sqrt((2 * canvas.height * 0.9) / gravity);
+                const buffer = 4000; // Optional safety buffer in ms
+                const estimatedCutoff = estimatedHitTime + DURATION - maxFallTime - buffer;
+
+                if (now < estimatedCutoff) {
+                    particles.push(new Particle());
+                }
                 return;
             }
 
-            // After timer starts, continue adding particles
-            particles.push(new Particle());
-        }
+            // After timer starts
+            const maxFallTime = Math.sqrt((2 * canvas.height * 0.9) / gravity);
+            const buffer = 200;
+            const currentCutoff = firstHitTime + DURATION - maxFallTime - buffer;
 
-        let lastGrainUpdate = 0;
-        let cachedGrains = [];
-        const GRAIN_UPDATE_INTERVAL = 5000; // Update grains every 5000ms (10x slower)
+            if (now < currentCutoff) {
+                particles.push(new Particle());
+            }
+        }
 
         function drawMound(p, colour, alpha = 1, showTexture = true) {
             const half = canvas.width * 0.14; // 28% of width divided by 2
             const curH = canvas.height * 0.1 * p; // mound height based on progress
-
-            // Adjust moundBottom dynamically for smaller screens
-            const moundBottom = canvas.height * (canvas.height > 768 ? 0.9 : 0.8); // Higher position on smaller screens
+            const moundBottom = canvas.height * 0.9; // bottom margin 10%
             const moundCenterX = canvas.width / 2;
 
-            // Draw shadow with diagonal gradient
-            const shadowGradient = ctx.createLinearGradient(moundCenterX - half, moundBottom - curH, moundCenterX + half, moundBottom);
-            shadowGradient.addColorStop(0, "#121821"); // Darker steel blue-grey at the top-left
-            shadowGradient.addColorStop(1, "#0a0f17"); // Darker steel blue-grey at the bottom-right
-
+            // Draw shadow
             ctx.beginPath();
             ctx.moveTo(moundCenterX - half, moundBottom);
             const steps = 60;
@@ -157,7 +128,7 @@
                 ctx.lineTo(x, y);
             }
             ctx.closePath();
-            ctx.fillStyle = shadowGradient;
+            ctx.fillStyle = "#222"; // Shadow closer to background colour
             ctx.globalAlpha = alpha * 0.8;
             ctx.fill();
             ctx.globalAlpha = 1;
@@ -180,54 +151,19 @@
                 ctx.fillStyle = gradient;
                 ctx.fill();
 
-                // Add subtle white glow to the yellow part of the mound
-                const glowGradient = ctx.createRadialGradient(moundCenterX, moundBottom - curH / 2, 0, moundCenterX, moundBottom - curH / 2, half);
-                glowGradient.addColorStop(0, "rgba(255, 255, 255, 0.1)"); // Subtle white glow at the center
-                glowGradient.addColorStop(1, "rgba(255, 255, 255, 0)"); // Fade to transparent
-
-                ctx.fillStyle = glowGradient;
-                ctx.beginPath();
-                ctx.moveTo(moundCenterX - half, moundBottom);
-                for (let i = 0; i <= steps; i++) {
-                    const t = i / steps;
-                    const x = moundCenterX - half + t * (half * 2);
-                    const y = moundBottom - curH * Math.sin(Math.PI * t);
-                    ctx.lineTo(x, y);
+                // Add subtle noise texture for realism
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < imageData.data.length; i += 4) {
+                    const randomNoise = Math.random() * 30 - 15; // Random noise for texture
+                    imageData.data[i] += randomNoise; // Red channel
+                    imageData.data[i + 1] += randomNoise; // Green channel
+                    imageData.data[i + 2] += randomNoise; // Blue channel
                 }
-                ctx.closePath();
-                ctx.fill();
-
-                // Add grain/texture effect
-                const now = Date.now();
-                if (now - lastGrainUpdate > GRAIN_UPDATE_INTERVAL || cachedGrains.length === 0) {
-                    cachedGrains = [];
-                    const grainCount = 300; // Number of grains to draw
-                    for (let i = 0; i < grainCount; i++) {
-                        const grainX = moundCenterX - half + Math.random() * (half * 2);
-                        const grainY = moundBottom - Math.random() * curH * Math.sin(Math.PI * ((grainX - (moundCenterX - half)) / (half * 2)));
-                        cachedGrains.push({ x: grainX, y: grainY, size: Math.random() * 0.4 + 0.1 }); // Smaller grains
-                    }
-                    lastGrainUpdate = now;
-                }
-
-                ctx.fillStyle = "rgba(255, 215, 0, 0.3)"; // Gold-like color with transparency
-                cachedGrains.forEach(grain => {
-                    ctx.beginPath();
-                    ctx.arc(grain.x, grain.y, grain.size, 0, Math.PI * 2);
-                    ctx.fill();
-                });
+                ctx.putImageData(imageData, 0, 0);
             }
         }
 
         let hasSandHit = false;
-
-
-        function getCountdownProgress() {
-            const now = Date.now();
-            if (now < START_DATE) return 0; // Before countdown starts
-            if (now > END_DATE) return 1; // After countdown ends
-            return (now - START_DATE) / (END_DATE - START_DATE);
-        }
 
         function frame(now) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -235,14 +171,21 @@
             // Always draw shadow mound
             drawMound(1, "rgba(212,175,55,0.12)", 1, false); // Shadow only
 
-            // Calculate progress based on countdown
-            const progress = getCountdownProgress();
-            drawMound(progress, "gold", 1, true); // Show textured mound as sand accumulates
+            // Calculate progress
+            let progress = 0;
+            if (firstHitTime) {
+                progress = Math.min((now - firstHitTime) / DURATION, 1);
+                drawMound(progress, "gold", 1, true); // Show textured mound as sand accumulates
+            }
 
             // Update + draw all particles
             particles = particles.filter(p => {
                 if (!p.settled) {
                     p.update();
+                    // Start timer on first settled grain
+                    if (!firstHitTime && p.y + p.size >= canvas.height * 0.9) {
+                        firstHitTime = performance.now();
+                    }
                 }
                 p.draw();
                 // Keep particles until they fully settle offscreen (extra safety)
@@ -250,7 +193,7 @@
             });
 
             // Request next frame if not done
-            if (progress < 1) {
+            if (!firstHitTime || progress < 1) {
                 requestAnimationFrame(frame);
             } else {
                 // Final draw of full mound
@@ -258,31 +201,6 @@
             }
         }
 
-        function updateCanvasSize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            // Recalculate centering values
-            streamX = canvas.width / 2;
-            moundCenterX = canvas.width / 2;
-
-            // Update existing particles to align with new streamX
-            particles.forEach(p => {
-                if (!p.settled) {
-                    const isWideRange = Math.random() < 0.1; // 20% chance for wider range
-                    const effectiveStreamWidth = isWideRange ? streamWidth * 5 : streamWidth;
-                    p.x = streamX + (Math.random() - 0.5) * effectiveStreamWidth;
-                }
-            });
-        }
-
-        // Add event listener for window resize
-        window.addEventListener('resize', () => {
-            updateCanvasSize();
-        });
-
-        // Initial call to set canvas size and centering
-        updateCanvasSize();
 
         setInterval(addParticles, 50); // Add particles more frequently for finer sand
 
