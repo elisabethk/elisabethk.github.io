@@ -50,16 +50,35 @@
                 this.alpha = Math.random() * 0.5 + 0.5; // Random transparency for particles
                 this.hasGlow = Math.random() < 0.25; // 20% chance to have a glow
                 this.glowRadius = this.size * (7 + Math.random() * 5); // Random glow radius
+                this.vx = (Math.random() - 0.5) * 0.1; // Add slight horizontal velocity for snow-like effect
             }
 
             update() {
-                this.y += this.vy; // Update position based on velocity
+                this.x += this.vx; // Update horizontal position
+                this.y += this.vy; // Update vertical position
 
                 // Reset particle to top if it falls off the screen
                 if (this.y > canvas.height) {
                     const streamIndex = Math.floor(Math.random() * streamCount); // Reassign to a random stream
                     this.x = streamPositions[streamIndex] + (Math.random() - 0.5) * streamWidths[streamIndex];
                     this.y = 0;
+                    this.vx = (Math.random() - 0.5) * 0.1; // Reset horizontal velocity
+                }
+
+                // Wrap horizontal position if it goes out of bounds
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+
+                // Bounce back gently if particle hits the edge of the middle third
+                const middleThirdStart = canvas.width / 3;
+                const middleThirdEnd = canvas.width * 2 / 3;
+                if (this.x < middleThirdStart) {
+                    this.x = middleThirdStart;
+                    this.vx = Math.abs(this.vx); // Reverse direction to the right
+                }
+                if (this.x > middleThirdEnd) {
+                    this.x = middleThirdEnd;
+                    this.vx = -Math.abs(this.vx); // Reverse direction to the left
                 }
             }
 
