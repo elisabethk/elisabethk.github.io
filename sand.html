@@ -27,83 +27,184 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        const startTime = new Date("2025-07-01T00:00:00Z");
-        const endTime = new Date("2025-08-10T00:00:00Z");
-        const totalDuration = endTime - startTime;
+        let firstHitTime = null;
+        const DURATION = 8_000; // 30 seconds
 
         let particles = [];
         const maxParticles = 1200;
-        const gravity = 0.005;  // much slower falling
+
+        const gravity = canvas.height * 0.9 / Math.pow(DURATION * 0.05, 2);  // ~2.4s fall time
+
         const streamX = canvas.width / 2;
-        const streamWidth = 2;
+        const streamWidth = 1.2;
 
         class Particle {
             constructor() {
                 this.x = streamX + (Math.random() - 0.5) * streamWidth;
                 this.y = 0;
-                this.vy = 0;
-                this.size = 1 + Math.random() * 0.5;
+                this.vy = 0.08 + Math.random() * 0.1; // Slightly different fall rates
+                this.size = 0.3 + Math.random() * 0.3; // Finer sand
                 this.settled = false;
             }
 
-            update(pileHeight) {
+            update() {
                 if (!this.settled) {
-                    this.vy += gravity;
-                    this.y += this.vy;
+                    this.vy += gravity; // Apply gravity to velocity
+                    this.y += this.vy; // Update position based on velocity
 
-                    const pileY = canvas.height - pileHeightAtX(this.x);
-                    if (this.y + this.size >= pileY) {
-                        this.y = pileY - this.size;
-                        this.settled = true;
+                    const pileBaseY = canvas.height * 0.9; // Base of the mound
+                    if (this.y + this.size >= pileBaseY) {
+                        this.settled = true; // Mark as settled
                     }
                 }
             }
 
             draw() {
-                ctx.fillStyle = "gold";
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+                if (!this.settled) { // Only draw particles that are still falling
+                    ctx.fillStyle = "gold";
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
         }
 
         function getGlobalPileHeight() {
-            const now = new Date();
-            const elapsed = Math.min(now - startTime, totalDuration);
-            const progress = elapsed / totalDuration;
+            const now = performance.now();
+            if (!firstHitTime) return 0;
+            const elapsed = Math.min(now - firstHitTime, DURATION);
+            const progress = elapsed / DURATION;
             return progress * canvas.height * 0.4;
         }
 
         function pileHeightAtX(x) {
             const fullHeight = getGlobalPileHeight();
-            const spread = canvas.width / 3;
+            const spread = canvas.width * 0.14; // Match mound width
             const dx = Math.abs(x - streamX);
             if (dx > spread) return 0;
             return fullHeight * (1 - dx / spread);
         }
+        let cutoffTime = null;
 
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function addParticles() {
+            const now = performance.now();
 
-            // Add particles very slowly — about 1 every few frames
-            if (particles.length < maxParticles && Math.random() < 0.1) {
+            if (!firstHitTime) {
+                const estimatedHitTime = now;
+                const maxFallTime = Math.sqrt((2 * canvas.height * 0.9) / gravity);
+                const buffer = 4000; // Optional safety buffer in ms
+                const estimatedCutoff = estimatedHitTime + DURATION - maxFallTime - buffer;
+
+                if (now < estimatedCutoff) {
+                    particles.push(new Particle());
+                }
+                return;
+            }
+
+            // After timer starts
+            const maxFallTime = Math.sqrt((2 * canvas.height * 0.9) / gravity);
+            const buffer = 200;
+            const currentCutoff = firstHitTime + DURATION - maxFallTime - buffer;
+
+            if (now < currentCutoff) {
                 particles.push(new Particle());
             }
-
-            const globalHeight = getGlobalPileHeight();
-
-            for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-                if (!p.settled) {
-                    p.update(globalHeight);
-                }
-                p.draw();
-            }
-
-            requestAnimationFrame(animate);
         }
 
-        animate();
+        function drawMound(p, colour, alpha = 1, showTexture = true) {
+            const half = canvas.width * 0.14; // 28% of width divided by 2
+            const curH = canvas.height * 0.1 * p; // mound height based on progress
+            const moundBottom = canvas.height * 0.9; // bottom margin 10%
+            const moundCenterX = canvas.width / 2;
+
+            // Draw shadow
+            ctx.beginPath();
+            ctx.moveTo(moundCenterX - half, moundBottom);
+            const steps = 60;
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const x = moundCenterX - half + t * (half * 2);
+                const y = moundBottom - curH * Math.sin(Math.PI * t);
+                ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fillStyle = "#222"; // Shadow closer to background colour
+            ctx.globalAlpha = alpha * 0.8;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            // Draw mound with gradient for depth only if showTexture is true
+            if (showTexture) {
+                const gradient = ctx.createLinearGradient(0, moundBottom - curH, 0, moundBottom);
+                gradient.addColorStop(0, "#d4af37"); // Lighter gold at the top
+                gradient.addColorStop(1, "#a67c00"); // Darker gold at the base
+
+                ctx.beginPath();
+                ctx.moveTo(moundCenterX - half, moundBottom);
+                for (let i = 0; i <= steps; i++) {
+                    const t = i / steps;
+                    const x = moundCenterX - half + t * (half * 2);
+                    const y = moundBottom - curH * Math.sin(Math.PI * t);
+                    ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.fillStyle = gradient;
+                ctx.fill();
+
+                // Add subtle noise texture for realism
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < imageData.data.length; i += 4) {
+                    const randomNoise = Math.random() * 30 - 15; // Random noise for texture
+                    imageData.data[i] += randomNoise; // Red channel
+                    imageData.data[i + 1] += randomNoise; // Green channel
+                    imageData.data[i + 2] += randomNoise; // Blue channel
+                }
+                ctx.putImageData(imageData, 0, 0);
+            }
+        }
+
+        let hasSandHit = false;
+
+        function frame(now) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Always draw shadow mound
+            drawMound(1, "rgba(212,175,55,0.12)", 1, false); // Shadow only
+
+            // Calculate progress
+            let progress = 0;
+            if (firstHitTime) {
+                progress = Math.min((now - firstHitTime) / DURATION, 1);
+                drawMound(progress, "gold", 1, true); // Show textured mound as sand accumulates
+            }
+
+            // Update + draw all particles
+            particles = particles.filter(p => {
+                if (!p.settled) {
+                    p.update();
+                    // Start timer on first settled grain
+                    if (!firstHitTime && p.y + p.size >= canvas.height * 0.9) {
+                        firstHitTime = performance.now();
+                    }
+                }
+                p.draw();
+                // Keep particles until they fully settle offscreen (extra safety)
+                return !p.settled || p.y < canvas.height;
+            });
+
+            // Request next frame if not done
+            if (!firstHitTime || progress < 1) {
+                requestAnimationFrame(frame);
+            } else {
+                // Final draw of full mound
+                drawMound(1, "gold", 1, true);
+            }
+        }
+
+
+        setInterval(addParticles, 50); // Add particles more frequently for finer sand
+
+        requestAnimationFrame(frame);
     </script>
 </body>
 
