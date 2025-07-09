@@ -34,11 +34,11 @@
         const streamCount = 50; // Number of streams
         const streamWidths = Array.from({ length: streamCount }, () => Math.random() * canvas.width * 0.001 + canvas.width * 0.005); // Random widths for each stream
         const streamPositions = Array.from({ length: streamCount }, () => {
-            const middleThirdStart = canvas.width / 3;
-            const middleThirdEnd = canvas.width * 2 / 3;
-            const middleThirdWidth = middleThirdEnd - middleThirdStart;
-            return middleThirdStart + Math.random() * middleThirdWidth;
-        }); // Randomly distribute streams within the middle third of the screen
+            const middleStart = canvas.width * 0.125; // Start at 12.5% of the width
+            const middleEnd = canvas.width * 0.875; // End at 87.5% of the width
+            const middleWidth = middleEnd - middleStart;
+            return middleStart + Math.random() * middleWidth;
+        }); // Randomly distribute streams within the middle 75% of the screen
 
         class Particle {
             constructor() {
@@ -46,7 +46,8 @@
                 this.x = streamPositions[streamIndex] + (Math.random() - 0.5) * streamWidths[streamIndex];
                 this.y = Math.random() * canvas.height;
                 this.vy = 0.15 + Math.random() * 0.15; // Faster fall rates for rain effect
-                this.size = Math.random() * 0.15 + 0.35; // Smaller particles for rain effect
+                const isMobile = canvas.width <= 768;
+                this.size = (isMobile ? 50 : 1) * (Math.random() * 0.15 + 0.35); // 5x bigger on mobile
                 this.alpha = Math.random() * 0.5 + 0.5; // Random transparency for particles
                 this.hasGlow = Math.random() < 0.25; // 20% chance to have a glow
                 this.glowRadius = this.size * (7 + Math.random() * 5); // Random glow radius
