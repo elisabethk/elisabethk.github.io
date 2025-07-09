@@ -50,7 +50,11 @@
                 // Adjust particle size based on device type
                 const screenFactor = Math.min(window.innerWidth, window.innerHeight) / 768; // Scale based on smaller screen dimension
                 const pixelDensityFactor = window.devicePixelRatio > 1 ? window.devicePixelRatio : 1; // Adjust for high pixel density
-                this.size = (screenFactor * pixelDensityFactor * 0.4) + Math.random() * (screenFactor * pixelDensityFactor * 0.4); // Dynamically scale size
+                if (canvas.width > 768) {
+                    this.size = (screenFactor * pixelDensityFactor * 0.2) + Math.random() * (screenFactor * pixelDensityFactor * 0.2); // Keep size for desktop
+                } else {
+                    this.size = (screenFactor * pixelDensityFactor * 0.6) + Math.random() * (screenFactor * pixelDensityFactor * 0.6); // Triple size for mobile
+                }
 
                 this.settled = false;
                 this.hasGlow = Math.random() < 0.25; // 10% chance to have a glow
