@@ -29,9 +29,9 @@
         canvas.height = window.innerHeight;
 
         const particles = [];
-        const maxParticles = 500; // Increased number of particles for rain-like effect
+        const maxParticles = 700; // Increased number of particles for rain-like effect
         const gravity = 0.01; // Slightly faster fall for rain effect
-        const streamCount = 50; // Number of streams
+        const streamCount = 100; // Number of streams
         const streamWidths = Array.from({ length: streamCount }, () => Math.random() * canvas.width * 0.001 + canvas.width * 0.005); // Random widths for each stream
         const streamPositions = Array.from({ length: streamCount }, () => {
             const middleStart = canvas.width * 0.125; // Start at 12.5% of the width
@@ -46,12 +46,12 @@
                 this.x = streamPositions[streamIndex] + (Math.random() - 0.5) * streamWidths[streamIndex];
                 this.y = Math.random() * canvas.height;
                 this.vy = 0.15 + Math.random() * 0.15; // Faster fall rates for rain effect
-                const isMobile = canvas.width <= 768;
-                this.size = (isMobile ? 50 : 1) * (Math.random() * 0.15 + 0.35); // 5x bigger on mobile
+                const isMobile = window.innerWidth <= 768; // Directly check screen width for mobile
+                this.size = (isMobile ? 5 : 1) * (Math.random() * 0.15 + 0.35); // Apply a more reasonable multiplier for mobile
                 this.alpha = Math.random() * 0.5 + 0.5; // Random transparency for particles
                 this.hasGlow = Math.random() < 0.25; // 20% chance to have a glow
                 this.glowRadius = this.size * (7 + Math.random() * 5); // Random glow radius
-                this.vx = (Math.random() - 0.5) * 0.1; // Add slight horizontal velocity for snow-like effect
+                this.vx = (Math.random() - 0.5) * 0.2; // Add slight horizontal velocity for snow-like effect
             }
 
             update() {
