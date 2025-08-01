@@ -204,7 +204,7 @@
                 let firstFutureItem = null;
 
                 validRows.forEach(columns => {
-                    const [date, heading, description, key, link] = columns;
+                    const [date, heading, countdown, description, key, link] = columns;
 
                     if (date && heading && description) {
                         const itemDate = new Date(date);
@@ -232,10 +232,13 @@
                             timelineItem.classList.add('transition'); // Transition: April, September, October
                         }
 
+                        // Add countdown in parentheses next to heading, not bold, only if present
+                        const countdownHtml = countdown ? ` <span style="font-weight:normal; font-size:0.95em; color:#b2dfdb;">(${countdown})</span>` : '';
+
                         timelineItem.innerHTML = `
                             <div class="date">${date}</div>
                             <h3>
-                                ${heading}
+                                ${heading}${countdownHtml}
                                 ${key === 'x' ? '⭐' : ''} <!-- Simple flat yellow heart -->
                             </h3>
                             <p>${description}</p>
