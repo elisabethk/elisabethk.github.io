@@ -65,7 +65,7 @@
       text-align: left;
       position: sticky;
       left: 0;
-      z-index: 30; /* Increased z-index to ensure it stays above other elements */
+      z-index: 50; /* Ensure it stays above other elements */
       box-shadow: 2px 0 8px #23272a;
     }
     th {
@@ -170,9 +170,9 @@
       vertical-align: middle;
       box-shadow: 0 2px 8px #23272a55;
     }
-    .legend-phase2 { background: linear-gradient(90deg, #ffff66 60%, #f7e9a0 100%); border: 1px solid #cccc00; }
-    .legend-phase23 { background: linear-gradient(90deg, #bfff00 60%, #e6ffcc 100%); border: 1px solid #80b300; }
-    .legend-phase3 { background: linear-gradient(90deg, #66ff66 60%, #b2dfdb 100%); border: 1px solid #009900; }
+    .legend-phase2 { background: linear-gradient(90deg, #ffff66 60%, #f7e9a0 100%); border: 1px solid #cccc00; vertical-align: middle;text-align: center;}
+    .legend-phase23 { background: linear-gradient(90deg, #bfff00 60%, #e6ffcc 100%); border: 1px solid #80b300; vertical-align: middle; text-align: center;}
+    .legend-phase3 { background: linear-gradient(90deg, #66ff66 60%, #b2dfdb 100%); border: 1px solid #009900;  vertical-align: middle;text-align: center;}
     .legend-star {
       display: inline-block;
       width: 16px;
@@ -308,15 +308,23 @@
           d.setMonth(d.getMonth() + 1);
         }
 
-        // Group months by year and quarter
+        // Group months by year and quarter, always 3 months per quarter
         let grouped = {};
         months.forEach(mk => {
           let [year, m] = mk.split('-');
           let monthNum = parseInt(m, 10);
-          let q = Math.floor((monthNum-1)/3)+1;
-          if (!grouped[year]) grouped[year] = {};
-          if (!grouped[year][q]) grouped[year][q] = [];
+          let q = Math.floor((monthNum - 1) / 3) + 1;
+          if (!grouped[year]) grouped[year] = {1: [], 2: [], 3: [], 4: []};
           grouped[year][q].push(mk);
+        });
+
+        // Ensure each quarter has 3 months (fill with empty placeholders if needed)
+        Object.keys(grouped).forEach(year => {
+          for (let q = 1; q <= 4; q++) {
+            while (grouped[year][q].length < 3) {
+              grouped[year][q].push(''); // Add empty string for missing months
+            }
+          }
         });
 
         // Build table
@@ -326,20 +334,15 @@
         let colIdx = 0;
         html += '<tr><th class="row-label">Intervention</th>';
         Object.keys(grouped).forEach(year => {
-          let monthsInYear = 0;
-          Object.values(grouped[year]).forEach(arr => monthsInYear += arr.length);
-          yearStartIdx.push({ year, col: colIdx });
-          html += `<th colspan="${monthsInYear}" style="background:#181c1f;color:#b2dfdb;">${year}</th>`;
-          colIdx += monthsInYear;
+          html += `<th colspan="12" style="background:#181c1f;color:#b2dfdb;">${year}</th>`;
         });
         html += '</tr>';
-        // Second header row: quarters
+        // Second header row: quarters (always 3 months per quarter)
         html += '<tr><th class="row-label"></th>';
         Object.keys(grouped).forEach(year => {
-          Object.keys(grouped[year]).forEach(q => {
-            let monthsInQ = grouped[year][q].length;
-            html += `<th colspan="${monthsInQ}" style="background:#23272a;color:#b2dfdb;">Q${q}</th>`;
-          });
+          for (let q = 1; q <= 4; q++) {
+            html += `<th colspan="3" style="background:#23272a;color:#b2dfdb;">Q${q}</th>`;
+          }
         });
         html += '</tr>';
         html += '</thead><tbody>';
@@ -359,16 +362,27 @@
           let phase = trial['Phase'];
           let trialName = trial['Trial'];
 
-          // Find start/end month index
-          let startIdx = months.findIndex(mk => {
+          // Build flat months array (with empty placeholders)
+          let flatMonths = [];
+          Object.keys(grouped).forEach(year => {
+            for (let q = 1; q <= 4; q++) {
+              grouped[year][q].forEach(mk => flatMonths.push(mk));
+            }
+          });
+
+          // Find start/end month index in flatMonths
+          let startIdx = flatMonths.findIndex(mk => {
+            if (!mk) return false;
             let dt = new Date(mk.split('-')[0], mk.split('-')[1]-1, 1);
             return dt.getFullYear() === start.getFullYear() && dt.getMonth() === start.getMonth();
           });
-          let endIdx = months.findIndex(mk => {
+          let endIdx = flatMonths.findIndex(mk => {
+            if (!mk) return false;
             let dt = new Date(mk.split('-')[0], mk.split('-')[1]-1, 1);
             return dt.getFullYear() === end.getFullYear() && dt.getMonth() === end.getMonth();
           });
-          let pcIdx = months.findIndex(mk => {
+          let pcIdx = flatMonths.findIndex(mk => {
+            if (!mk) return false;
             let dt = new Date(mk.split('-')[0], mk.split('-')[1]-1, 1);
             return dt.getFullYear() === pc.getFullYear() && dt.getMonth() === pc.getMonth();
           });
@@ -381,9 +395,7 @@
           let barColspan = endIdx - startIdx + 1;
           if (barColspan > 0) {
             html += `<td class="bar-cell" colspan="${barColspan}" style="position:relative;background:transparent;">`;
-            // Bar background
             html += `<div class="continuous-bar ${phaseClass(phase)}" title="${trialName}"></div>`;
-            // Overlay milestone if PC is within bar
             if (pcIdx >= startIdx && pcIdx <= endIdx) {
               let milestonePos = ((pcIdx - startIdx + 0.5) / barColspan) * 100;
               html += `<span class="milestone" title="${trialName}" style="position:absolute; left:${milestonePos}%; top:0; transform:translate(-50%,0); z-index:2;">&#9733;</span>`;
@@ -391,7 +403,7 @@
             html += `</td>`;
           }
           // Render cells after bar
-          for (let i = endIdx + 1; i < months.length; i++) {
+          for (let i = endIdx + 1; i < flatMonths.length; i++) {
             html += `<td class="empty-cell"></td>`;
           }
           html += '</tr>';
@@ -412,15 +424,19 @@
           const ths = Array.from(thead.querySelectorAll('th')).slice(1); // skip intervention col
           const container = document.getElementById('year-dividers');
           container.innerHTML = '';
-          yearStartIdx.slice(1).forEach((info, i) => {
-            let idx = info.col;
-            if (ths[idx]) {
-              let divider = document.createElement('div');
-              divider.className = 'year-divider';
-              divider.style.left = (ths[idx].offsetLeft - 2) + 'px';
-              divider.style.height = table.offsetHeight + 'px';
-              container.appendChild(divider);
+          let yearCol = 0;
+          Object.keys(grouped).forEach((year, i) => {
+            if (i > 0) {
+              let idx = yearCol;
+              if (ths[idx]) {
+                let divider = document.createElement('div');
+                divider.className = 'year-divider';
+                divider.style.left = (ths[idx].offsetLeft - 2) + 'px';
+                divider.style.height = table.offsetHeight + 'px';
+                container.appendChild(divider);
+              }
             }
+            yearCol += 12;
           });
         }, 0);
 
@@ -430,10 +446,6 @@
     }
 
     fetchAndDraw();
-  </script>
-</body>
-</html>
-
   </script>
 </body>
 </html>
