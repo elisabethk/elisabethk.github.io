@@ -238,34 +238,33 @@
       margin-right: 18px;
       margin-bottom: 6px;
       gap: 6px;
+      vertical-align: top;
     }
     .legend-bar {
       display: inline-block;
       width: 22px;
       height: 14px;
       border-radius: 4px;
-      margin-right: 4px;
-      vertical-align: middle;
       box-shadow: 0 2px 8px #23272a55;
+      flex-shrink: 0;
     }
-    .legend-phase2 { background: linear-gradient(90deg, #ffff66 60%, #f7e9a0 100%); border: 1px solid #cccc00; vertical-align: middle;text-align: center;}
-    .legend-phase23 { background: linear-gradient(90deg, #bfff00 60%, #e6ffcc 100%); border: 1px solid #80b300; vertical-align: middle; text-align: center;}
-    .legend-phase3 { background: linear-gradient(90deg, #66ff66 60%, #b2dfdb 100%); border: 1px solid #009900;  vertical-align: middle;text-align: center;}
+    .legend-phase2 { background: linear-gradient(90deg, #ffff66 60%, #f7e9a0 100%); border: 1px solid #cccc00;}
+    .legend-phase23 { background: linear-gradient(90deg, #bfff00 60%, #e6ffcc 100%); border: 1px solid #80b300;}
+    .legend-phase3 { background: linear-gradient(90deg, #66ff66 60%, #b2dfdb 100%); border: 1px solid #009900;}
     .legend-star {
       display: inline-block;
       width: 16px;
       height: 16px;
       line-height: 16px;
-      font-size: 1em;
+      font-size: 0.9em;
       background: linear-gradient(135deg, #ffd700 60%, #fffbe6 100%);
       color: #222;
       border-radius: 50%;
       text-align: center;
       font-weight: bold;
-      margin-right: 4px;
-      vertical-align: middle;
       box-shadow: 0 2px 8px #ffd70055;
       border: 1px solid #e8f5e9;
+      flex-shrink: 0;
     }
     a {
       color: #b2dfdb;
@@ -474,10 +473,12 @@
       
       trials.forEach(trial => {
         let interventionCell;
+        const starIcon = isStarred(trial) ? '<span style="color: #ffd700; font-size: 0.9em; margin-right: 3px;">★</span>' : '';
+        
         if (trial['Link']) {
-          interventionCell = `<a href="${trial['Link']}" target="_blank" style="color:inherit;text-decoration:underline;">${trial['Intervention']}</a>`;
+          interventionCell = `${starIcon}<a href="${trial['Link']}" target="_blank" style="color:inherit;text-decoration:underline;">${trial['Intervention']}</a>`;
         } else {
-          interventionCell = trial['Intervention'];
+          interventionCell = `${starIcon}${trial['Intervention']}`;
         }
         frozenHtml += `<tr><td>${interventionCell}</td></tr>`;
       });
