@@ -85,28 +85,62 @@
       font-size: 14px;
       font-weight: bold;
     }
-    .table-container {
-      overflow-x: auto;
-      max-width: 100vw;
-      position: relative;
+    .table-wrapper {
       margin-top: 0.25rem;
-      box-shadow: 0 8px 32px #000a  /* strong shadow */;
+      box-shadow: 0 8px 32px #000a;
       border-radius: 14px;
       background: linear-gradient(135deg, #23272a 60%, #014d3b 100%);
       padding: 16px 0 16px 0;
+      position: relative;
+      display: flex;
+      overflow: hidden;
     }
-    table {
+    .frozen-column {
+      width: 200px;
+      min-width: 200px;
+      background: linear-gradient(90deg, #181c1f 60%, #014d3b 100%);
+      z-index: 100;
+      box-shadow: 2px 0 8px rgba(35, 39, 42, 0.8);
+      border-right: 2px solid #333;
+    }
+    .scrollable-content {
+      flex: 1;
+      overflow-x: auto;
+      max-width: calc(100vw - 280px);
+    }
+    .frozen-table, .main-table {
       width: 100%;
       border-collapse: collapse;
       background: transparent;
       color: #e8f5e9;
       font-size: 0.95em;
-      position: relative;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 12px #0006;
+      table-layout: fixed;
     }
-    th, td {
+    .frozen-table {
+      width: 200px;
+    }
+    .frozen-table th, .frozen-table td {
+      width: 200px;
+      padding: 4px 8px;
+      text-align: left;
+      border: 1px solid #333;
+      background: transparent;
+      height: 30px;
+      vertical-align: middle;
+      box-sizing: border-box;
+    }
+    .frozen-table th {
+      background: linear-gradient(90deg, #222 60%, #014d3b 100%);
+      color: #b2dfdb;
+      font-weight: bold;
+      border-bottom: 2px solid #b2dfdb44;
+    }
+    .frozen-table td {
+      background: linear-gradient(90deg, #181c1f 60%, #014d3b 100%);
+      color: #e8f5e9;
+      font-weight: bold;
+    }
+    .main-table th, .main-table td {
       border: 1px solid #333;
       padding: 2px 2px;
       text-align: center;
@@ -114,22 +148,12 @@
       max-width: 20px;
       position: relative;
       font-size: 0.95em;
-      background: transparent; /* Fix: make all cells transparent by default */
+      background: transparent;
+      height: 30px;
+      vertical-align: middle;
+      box-sizing: border-box;
     }
-    th.row-label, td.row-label {
-      min-width: 120px;
-      max-width: none;
-      padding: 4px 6px;
-      background: linear-gradient(90deg, #181c1f 60%, #014d3b 100%);
-      color: #e8f5e9;
-      font-weight: bold;
-      text-align: left;
-      position: sticky;
-      left: 0;
-      z-index: 50; /* Ensure it stays above other elements */
-      box-shadow: 2px 0 8px #23272a;
-    }
-    th {
+    .main-table th {
       background: linear-gradient(90deg, #222 60%, #014d3b 100%);
       color: #b2dfdb;
       font-weight: bold;
@@ -164,13 +188,6 @@
       box-shadow: 0 2px 8px #ffd70055;
       border: 1px solid #e8f5e9;
     }
-    .bar {
-      border-radius: 6px;
-      height: 22px;
-      width: 100%;
-      display: block;
-      cursor: pointer;
-    }
     .continuous-bar {
       height: 18px;
       border-radius: 6px;
@@ -182,14 +199,14 @@
       opacity: 1;
       box-shadow: 0 2px 8px #23272a55;
     }
-    td.bar-cell {
+    .bar-cell {
       position: relative;
       padding: 0;
       border: none;
       background: transparent;
     }
-    td.empty-cell {
-      background: transparent !important; /* Ensure empty cells are always transparent */
+    .empty-cell {
+      background: transparent !important;
       border: 1px solid #333;
     }
     .year-divider {
@@ -276,7 +293,18 @@
     </div>
   </div>
   
-  <div class="table-container" id="table_container" style="display:none"></div>
+  <div class="table-wrapper" id="table_wrapper" style="display:none">
+    <div class="frozen-column">
+      <table class="frozen-table" id="frozen_table"></table>
+    </div>
+    <div class="scrollable-content">
+      <div style="position:relative;">
+        <table class="main-table" id="main_table"></table>
+        <div id="year-dividers"></div>
+      </div>
+    </div>
+  </div>
+  
   <div class="legend">
     <span class="legend-item"><span class="legend-bar legend-phase2"></span>Phase 2</span>
     <span class="legend-item"><span class="legend-bar legend-phase23"></span>Phase 2/3</span>
@@ -303,7 +331,7 @@
 
     function showError(msg) {
       document.getElementById('loading').style.display = 'none';
-      document.getElementById('table_container').style.display = 'none';
+      document.getElementById('table_wrapper').style.display = 'none';
       document.getElementById('filter_container').style.display = 'none';
       let err = document.getElementById('error');
       err.innerText = msg;
@@ -345,9 +373,58 @@
       return trial['Star'] && trial['Star'].toLowerCase() === 'x';
     }
 
+    function alignTableRows() {
+      // Force row height alignment after tables are rendered
+      setTimeout(() => {
+        const frozenRows = document.querySelectorAll('#frozen_table tbody tr');
+        const mainRows = document.querySelectorAll('#main_table tbody tr');
+        
+        // Ensure both tables have the same number of rows
+        const minRows = Math.min(frozenRows.length, mainRows.length);
+        
+        for (let i = 0; i < minRows; i++) {
+          const frozenRowHeight = frozenRows[i].offsetHeight;
+          const mainRowHeight = mainRows[i].offsetHeight;
+          const maxHeight = Math.max(frozenRowHeight, mainRowHeight);
+          
+          // Set both rows to the same height
+          frozenRows[i].style.height = maxHeight + 'px';
+          mainRows[i].style.height = maxHeight + 'px';
+        }
+        
+        // Also align header rows
+        const frozenHeaders = document.querySelectorAll('#frozen_table thead tr');
+        const mainHeaders = document.querySelectorAll('#main_table thead tr');
+        
+        for (let i = 0; i < Math.min(frozenHeaders.length, mainHeaders.length); i++) {
+          const frozenHeaderHeight = frozenHeaders[i].offsetHeight;
+          const mainHeaderHeight = mainHeaders[i].offsetHeight;
+          const maxHeaderHeight = Math.max(frozenHeaderHeight, mainHeaderHeight);
+          
+          frozenHeaders[i].style.height = maxHeaderHeight + 'px';
+          mainHeaders[i].style.height = maxHeaderHeight + 'px';
+        }
+      }, 50); // Small delay to ensure DOM is fully rendered
+    }
+
+    function syncScroll() {
+      const frozenTable = document.getElementById('frozen_table');
+      const mainTable = document.getElementById('main_table');
+      const scrollableContent = document.querySelector('.scrollable-content');
+
+      if (!frozenTable || !scrollableContent) return;
+
+      // Sync vertical scroll between tables
+      const scrollHandler = function() {
+        frozenTable.style.transform = `translateY(-${this.scrollTop}px)`;
+      };
+      
+      scrollableContent.addEventListener('scroll', scrollHandler);
+    }
+
     function drawTable(trials) {
       if (!trials.length) {
-        document.getElementById('table_container').innerHTML = '<div style="color: #b2dfdb; padding: 20px; text-align: center;">No trials match the current filter.</div>';
+        document.getElementById('table_wrapper').innerHTML = '<div style="color: #b2dfdb; padding: 20px; text-align: center;">No trials match the current filter.</div>';
         return;
       }
 
@@ -389,35 +466,44 @@
         }
       });
 
-      // Build table
-      let html = '<div style="position:relative;"><table><thead>';
-      // First header row: years
-      let yearStartIdx = [];
-      let colIdx = 0;
-      html += '<tr><th class="row-label">Intervention</th>';
-      Object.keys(grouped).forEach(year => {
-        html += `<th colspan="12" style="background:#181c1f;color:#b2dfdb;">${year}</th>`;
-      });
-      html += '</tr>';
-      // Second header row: quarters (always 3 months per quarter)
-      html += '<tr><th class="row-label"></th>';
-      Object.keys(grouped).forEach(year => {
-        for (let q = 1; q <= 4; q++) {
-          html += `<th colspan="3" style="background:#23272a;color:#b2dfdb;">Q${q}</th>`;
-        }
-      });
-      html += '</tr>';
-      html += '</thead><tbody>';
-      // Table rows
+      // Build frozen column table (interventions)
+      let frozenHtml = '<thead>';
+      frozenHtml += '<tr><th>Intervention</th></tr>';
+      frozenHtml += '<tr><th></th></tr>';
+      frozenHtml += '</thead><tbody>';
+      
       trials.forEach(trial => {
-        // Make intervention name clickable if Link exists
         let interventionCell;
         if (trial['Link']) {
           interventionCell = `<a href="${trial['Link']}" target="_blank" style="color:inherit;text-decoration:underline;">${trial['Intervention']}</a>`;
         } else {
           interventionCell = trial['Intervention'];
         }
-        html += `<tr><td class="row-label">${interventionCell}</td>`;
+        frozenHtml += `<tr><td>${interventionCell}</td></tr>`;
+      });
+      frozenHtml += '</tbody>';
+
+      // Build main table (timeline)
+      let mainHtml = '<thead>';
+      // First header row: years
+      mainHtml += '<tr>';
+      Object.keys(grouped).forEach(year => {
+        mainHtml += `<th colspan="12" style="background:#181c1f;color:#b2dfdb;">${year}</th>`;
+      });
+      mainHtml += '</tr>';
+      // Second header row: quarters
+      mainHtml += '<tr>';
+      Object.keys(grouped).forEach(year => {
+        for (let q = 1; q <= 4; q++) {
+          mainHtml += `<th colspan="3" style="background:#23272a;color:#b2dfdb;">Q${q}</th>`;
+        }
+      });
+      mainHtml += '</tr>';
+      mainHtml += '</thead><tbody>';
+      
+      // Table rows
+      trials.forEach(trial => {
+        mainHtml += '<tr>';
         let start = parseDate(trial['Start']);
         let end = parseDate(trial['End']);
         let pc = parseDate(trial['PC']);
@@ -451,38 +537,40 @@
 
         // Render cells before bar
         for (let i = 0; i < startIdx; i++) {
-          html += `<td class="empty-cell"></td>`;
+          mainHtml += `<td class="empty-cell"></td>`;
         }
         // Render bar cells
         let barColspan = endIdx - startIdx + 1;
         if (barColspan > 0) {
-          html += `<td class="bar-cell" colspan="${barColspan}" style="position:relative;background:transparent;">`;
-          html += `<div class="continuous-bar ${phaseClass(phase)}" title="${trialName}"></div>`;
+          mainHtml += `<td class="bar-cell" colspan="${barColspan}" style="position:relative;background:transparent;">`;
+          mainHtml += `<div class="continuous-bar ${phaseClass(phase)}" title="${trialName}"></div>`;
           if (pcIdx >= startIdx && pcIdx <= endIdx) {
             let milestonePos = ((pcIdx - startIdx + 0.5) / barColspan) * 100;
-            html += `<span class="milestone" title="${trialName}" style="position:absolute; left:${milestonePos}%; top:0; transform:translate(-50%,0); z-index:2;">&#9733;</span>`;
+            mainHtml += `<span class="milestone" title="${trialName}" style="position:absolute; left:${milestonePos}%; top:0; transform:translate(-50%,0); z-index:2;">&#9733;</span>`;
           }
-          html += `</td>`;
+          mainHtml += `</td>`;
         }
         // Render cells after bar
         for (let i = endIdx + 1; i < flatMonths.length; i++) {
-          html += `<td class="empty-cell"></td>`;
+          mainHtml += `<td class="empty-cell"></td>`;
         }
-        html += '</tr>';
+        mainHtml += '</tr>';
       });
-      html += '</tbody></table>';
+      mainHtml += '</tbody>';
 
-      // Add year dividers container
-      html += `<div id="year-dividers"></div></div>`;
+      document.getElementById('frozen_table').innerHTML = frozenHtml;
+      document.getElementById('main_table').innerHTML = mainHtml;
 
-      document.getElementById('table_container').innerHTML = html;
+      // Setup scroll synchronization and row alignment
+      syncScroll();
+      alignTableRows();
 
-      // Add vertical lines for year dividers
+      // Add year dividers
       setTimeout(() => {
-        const table = document.querySelector('#table_container table');
+        const table = document.querySelector('#main_table');
         if (table) {
           const thead = table.querySelector('thead tr');
-          const ths = Array.from(thead.querySelectorAll('th')).slice(1); // skip intervention col
+          const ths = Array.from(thead.querySelectorAll('th'));
           const container = document.getElementById('year-dividers');
           container.innerHTML = '';
           let yearCol = 0;
@@ -537,7 +625,7 @@
 
         document.getElementById('loading').style.display = 'none';
         document.getElementById('filter_container').style.display = '';
-        document.getElementById('table_container').style.display = '';
+        document.getElementById('table_wrapper').style.display = '';
 
         // Setup filter event listener
         document.getElementById('star_filter').addEventListener('change', applyFilter);
