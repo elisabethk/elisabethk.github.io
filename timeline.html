@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LC / ME Clinical Trials Watchlist</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #181c1f 0%, #013220 100%);
+      color: #e8f5e9;
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    h2 {
+      color: #e8f5e9;
+      font-size: 2.2em;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 0.5em;
+      background: linear-gradient(90deg, #b2dfdb 0%, #66ff66 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+      text-shadow: 0 2px 12px #23272a88;
+    }
+    #loading { font-size: 18px; color: #b2dfdb; }
+    #error { color: #ffb3b3; font-size: 16px; }
+    .table-container {
+      overflow-x: auto;
+      max-width: 100vw;
+      position: relative;
+      margin-top: 2rem;
+      box-shadow: 0 8px 32px #000a  /* strong shadow */;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #23272a 60%, #014d3b 100%);
+      padding: 16px 0 16px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: transparent;
+      color: #e8f5e9;
+      font-size: 0.95em;
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px #0006;
+    }
+    th, td {
+      border: 1px solid #333;
+      padding: 2px 2px;
+      text-align: center;
+      min-width: 16px;
+      max-width: 20px;
+      position: relative;
+      font-size: 0.95em;
+      background: transparent; /* Fix: make all cells transparent by default */
+    }
+    th.row-label, td.row-label {
+      min-width: 120px;
+      max-width: none;
+      padding: 4px 6px;
+      background: linear-gradient(90deg, #181c1f 60%, #014d3b 100%);
+      color: #e8f5e9;
+      font-weight: bold;
+      text-align: left;
+      position: sticky;
+      left: 0;
+      z-index: 30; /* Increased z-index to ensure it stays above other elements */
+      box-shadow: 2px 0 8px #23272a;
+    }
+    th {
+      background: linear-gradient(90deg, #222 60%, #014d3b 100%);
+      color: #b2dfdb;
+      font-weight: bold;
+      border-bottom: 2px solid #b2dfdb44;
+    }
+    .phase2 {
+      background: linear-gradient(90deg, #ffff66 60%, #f7e9a0 100%);
+      color: #222;
+      box-shadow: 0 2px 8px #cccc0055;
+    }
+    .phase23 {
+      background: linear-gradient(90deg, #bfff00 60%, #e6ffcc 100%);
+      color: #222;
+      box-shadow: 0 2px 8px #80b30055;
+    }
+    .phase3 {
+      background: linear-gradient(90deg, #66ff66 60%, #b2dfdb 100%);
+      color: #222;
+      box-shadow: 0 2px 8px #00990055;
+    }
+    .milestone {
+      width: 16px;
+      height: 16px;
+      line-height: 16px;
+      font-size: 0.95em;
+      background: linear-gradient(135deg, #ffd700 60%, #fffbe6 100%);
+      color: #222 !important;
+      font-weight: bold;
+      border-radius: 50%;
+      display: inline-block;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #ffd70055;
+      border: 1px solid #e8f5e9;
+    }
+    .bar {
+      border-radius: 6px;
+      height: 22px;
+      width: 100%;
+      display: block;
+      cursor: pointer;
+    }
+    .continuous-bar {
+      height: 18px;
+      border-radius: 6px;
+      width: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 1;
+      opacity: 1;
+      box-shadow: 0 2px 8px #23272a55;
+    }
+    td.bar-cell {
+      position: relative;
+      padding: 0;
+      border: none;
+      background: transparent;
+    }
+    td.empty-cell {
+      background: transparent !important; /* Ensure empty cells are always transparent */
+      border: 1px solid #333;
+    }
+    .year-divider {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(to bottom, #b2dfdbcc 0%, #23272a 100%);
+      z-index: 10;
+      pointer-events: none;
+      border-radius: 2px;
+      transition: background 0.2s;
+      box-shadow: 0 0 8px #b2dfdb88;
+    }
+    .legend {
+      margin-top: 32px;
+      background: linear-gradient(90deg, #23272a 60%, #014d3b 100%);
+      color: #e8f5e9;
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-size: 0.98em;
+      display: inline-block;
+      box-shadow: 0 2px 8px #181c1f44;
+      border: 1px solid #b2dfdb44;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      margin-right: 18px;
+      margin-bottom: 6px;
+      gap: 6px;
+    }
+    .legend-bar {
+      display: inline-block;
+      width: 22px;
+      height: 14px;
+      border-radius: 4px;
+      margin-right: 4px;
+      vertical-align: middle;
+      box-shadow: 0 2px 8px #23272a55;
+    }
+    .legend-phase2 { background: linear-gradient(90deg, #ffff66 60%, #f7e9a0 100%); border: 1px solid #cccc00; }
+    .legend-phase23 { background: linear-gradient(90deg, #bfff00 60%, #e6ffcc 100%); border: 1px solid #80b300; }
+    .legend-phase3 { background: linear-gradient(90deg, #66ff66 60%, #b2dfdb 100%); border: 1px solid #009900; }
+    .legend-star {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      line-height: 16px;
+      font-size: 1em;
+      background: linear-gradient(135deg, #ffd700 60%, #fffbe6 100%);
+      color: #222;
+      border-radius: 50%;
+      text-align: center;
+      font-weight: bold;
+      margin-right: 4px;
+      vertical-align: middle;
+      box-shadow: 0 2px 8px #ffd70055;
+      border: 1px solid #e8f5e9;
+    }
+    a {
+      color: #b2dfdb;
+      text-decoration: underline;
+      transition: color 0.2s;
+    }
+    a:hover {
+      color: #ffd700;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h2>LC / ME Clinical Trials Watchlist</h2>
+  <div id="loading">Loading data...</div>
+  <div id="error" style="display:none"></div>
+  <div class="table-container" id="table_container" style="display:none"></div>
+  <div class="legend">
+    <span class="legend-item"><span class="legend-bar legend-phase2"></span>Phase 2</span>
+    <span class="legend-item"><span class="legend-bar legend-phase23"></span>Phase 2/3</span>
+    <span class="legend-item"><span class="legend-bar legend-phase3"></span>Phase 3</span>
+    <span class="legend-item"><span class="legend-star">&#9733;</span>Primary completion date</span>
+  </div>
+  <script>
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSnTg3Oy4cTr7XQERGyaIECozT0JyY4jj3V6n90ys5hMA99tJTCkwJ9Bd3st3Nw8NwUbKdLjpOTWJtv/pub?gid=0&single=true&output=csv';
+
+    function parseDate(str) {
+      if (!str) return null;
+      let d = new Date(str);
+      if (isNaN(d)) {
+        let parts = str.split('/');
+        if (parts.length === 3) {
+          return new Date(parts[2], parts[0]-1, parts[1]);
+        }
+        return null;
+      }
+      return d;
+    }
+
+    function showError(msg) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('table_container').style.display = 'none';
+      let err = document.getElementById('error');
+      err.innerText = msg;
+      err.style.display = '';
+    }
+
+    function getMonthKey(date) {
+      return date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0');
+    }
+
+    function getMonthLabel(date) {
+      return date.toLocaleString('default', { month: 'short' }) + ' ' + date.getFullYear();
+    }
+
+    function phaseClass(phase) {
+      if (phase === 'Phase 2') return 'phase2';
+      if (phase === 'Phase 2/3') return 'phase23';
+      if (phase === 'Phase 3') return 'phase3';
+      return '';
+    }
+
+    // Robust CSV parser for quoted fields
+    function parseCSVLine(line) {
+      const regex = /("([^"]|"")*"|[^,]*)(,|$)/g;
+      let cols = [];
+      let match;
+      while ((match = regex.exec(line)) !== null) {
+        let val = match[1];
+        if (val.startsWith('"') && val.endsWith('"')) {
+          val = val.slice(1, -1).replace(/""/g, '"');
+        }
+        cols.push(val.trim());
+        if (match[3] === '') break;
+      }
+      return cols;
+    }
+
+    async function fetchAndDraw() {
+      try {
+        const response = await fetch(csvUrl);
+        const csvText = await response.text();
+        const lines = csvText.split('\n').filter(l => l.trim());
+        if (!lines.length) return showError('No data found.');
+        const headers = parseCSVLine(lines[0]);
+        const required = ['Trial', 'Intervention', 'Start', 'PC', 'End', 'Phase'];
+        const idx = {};
+        required.forEach(col => { idx[col] = headers.indexOf(col); });
+        if (Object.values(idx).some(i => i === -1)) return showError('Missing required columns in data.');
+        let trials = lines.slice(1).map(line => {
+          let cols = parseCSVLine(line);
+          let obj = {};
+          headers.forEach((h, i) => obj[h] = (cols[i] || '').trim());
+          return obj;
+        }).filter(row =>
+          row['Intervention'] && row['Start'] && row['End'] && row['PC'] && row['Trial']
+        );
+        if (!trials.length) {
+          console.error('Parsed rows:', lines.slice(1).map(parseCSVLine));
+          return showError('No valid data rows found.');
+        }
+        trials.sort((a, b) => parseDate(a['PC']) - parseDate(b['PC']));
+
+        // Find min/max month for columns, but start at Jan 2025
+        let minDate = new Date(2025, 0, 1); // Jan 2025
+        let maxDate = null;
+        trials.forEach(trial => {
+          let e = parseDate(trial['End']);
+          if (!maxDate || e > maxDate) maxDate = e;
+        });
+
+        // Build month keys from Jan 2025 to maxDate
+        let months = [];
+        let d = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+        let end = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
+        while (d <= end) {
+          months.push(getMonthKey(d));
+          d.setMonth(d.getMonth() + 1);
+        }
+
+        // Group months by year and quarter
+        let grouped = {};
+        months.forEach(mk => {
+          let [year, m] = mk.split('-');
+          let monthNum = parseInt(m, 10);
+          let q = Math.floor((monthNum-1)/3)+1;
+          if (!grouped[year]) grouped[year] = {};
+          if (!grouped[year][q]) grouped[year][q] = [];
+          grouped[year][q].push(mk);
+        });
+
+        // Build table
+        let html = '<div style="position:relative;"><table><thead>';
+        // First header row: years
+        let yearStartIdx = [];
+        let colIdx = 0;
+        html += '<tr><th class="row-label">Intervention</th>';
+        Object.keys(grouped).forEach(year => {
+          let monthsInYear = 0;
+          Object.values(grouped[year]).forEach(arr => monthsInYear += arr.length);
+          yearStartIdx.push({ year, col: colIdx });
+          html += `<th colspan="${monthsInYear}" style="background:#181c1f;color:#b2dfdb;">${year}</th>`;
+          colIdx += monthsInYear;
+        });
+        html += '</tr>';
+        // Second header row: quarters
+        html += '<tr><th class="row-label"></th>';
+        Object.keys(grouped).forEach(year => {
+          Object.keys(grouped[year]).forEach(q => {
+            let monthsInQ = grouped[year][q].length;
+            html += `<th colspan="${monthsInQ}" style="background:#23272a;color:#b2dfdb;">Q${q}</th>`;
+          });
+        });
+        html += '</tr>';
+        html += '</thead><tbody>';
+        // Table rows
+        trials.forEach(trial => {
+          // Make intervention name clickable if Link exists
+          let interventionCell;
+          if (trial['Link']) {
+            interventionCell = `<a href="${trial['Link']}" target="_blank" style="color:inherit;text-decoration:underline;">${trial['Intervention']}</a>`;
+          } else {
+            interventionCell = trial['Intervention'];
+          }
+          html += `<tr><td class="row-label">${interventionCell}</td>`;
+          let start = parseDate(trial['Start']);
+          let end = parseDate(trial['End']);
+          let pc = parseDate(trial['PC']);
+          let phase = trial['Phase'];
+          let trialName = trial['Trial'];
+
+          // Find start/end month index
+          let startIdx = months.findIndex(mk => {
+            let dt = new Date(mk.split('-')[0], mk.split('-')[1]-1, 1);
+            return dt.getFullYear() === start.getFullYear() && dt.getMonth() === start.getMonth();
+          });
+          let endIdx = months.findIndex(mk => {
+            let dt = new Date(mk.split('-')[0], mk.split('-')[1]-1, 1);
+            return dt.getFullYear() === end.getFullYear() && dt.getMonth() === end.getMonth();
+          });
+          let pcIdx = months.findIndex(mk => {
+            let dt = new Date(mk.split('-')[0], mk.split('-')[1]-1, 1);
+            return dt.getFullYear() === pc.getFullYear() && dt.getMonth() === pc.getMonth();
+          });
+
+          // Render cells before bar
+          for (let i = 0; i < startIdx; i++) {
+            html += `<td class="empty-cell"></td>`;
+          }
+          // Render bar cells
+          let barColspan = endIdx - startIdx + 1;
+          if (barColspan > 0) {
+            html += `<td class="bar-cell" colspan="${barColspan}" style="position:relative;background:transparent;">`;
+            // Bar background
+            html += `<div class="continuous-bar ${phaseClass(phase)}" title="${trialName}"></div>`;
+            // Overlay milestone if PC is within bar
+            if (pcIdx >= startIdx && pcIdx <= endIdx) {
+              let milestonePos = ((pcIdx - startIdx + 0.5) / barColspan) * 100;
+              html += `<span class="milestone" title="${trialName}" style="position:absolute; left:${milestonePos}%; top:0; transform:translate(-50%,0); z-index:2;">&#9733;</span>`;
+            }
+            html += `</td>`;
+          }
+          // Render cells after bar
+          for (let i = endIdx + 1; i < months.length; i++) {
+            html += `<td class="empty-cell"></td>`;
+          }
+          html += '</tr>';
+        });
+        html += '</tbody></table>';
+
+        // Add year dividers container
+        html += `<div id="year-dividers"></div></div>`;
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('table_container').style.display = '';
+        document.getElementById('table_container').innerHTML = html;
+
+        // Add vertical lines for year dividers
+        setTimeout(() => {
+          const table = document.querySelector('#table_container table');
+          const thead = table.querySelector('thead tr');
+          const ths = Array.from(thead.querySelectorAll('th')).slice(1); // skip intervention col
+          const container = document.getElementById('year-dividers');
+          container.innerHTML = '';
+          yearStartIdx.slice(1).forEach((info, i) => {
+            let idx = info.col;
+            if (ths[idx]) {
+              let divider = document.createElement('div');
+              divider.className = 'year-divider';
+              divider.style.left = (ths[idx].offsetLeft - 2) + 'px';
+              divider.style.height = table.offsetHeight + 'px';
+              container.appendChild(divider);
+            }
+          });
+        }, 0);
+
+      } catch (e) {
+        showError('Failed to load data: ' + e);
+      }
+    }
+
+    fetchAndDraw();
+  </script>
+</body>
+</html>
+
+  </script>
+</body>
+</html>
