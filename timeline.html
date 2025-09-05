@@ -183,6 +183,7 @@
       background: linear-gradient(135deg, #ffd700 60%, #fffbe6 100%);
       color: #222 !important;
       font-weight: bold;
+      transform: translateY(-50%);
       border-radius: 50%;
       display: inline-block;
       cursor: pointer;
@@ -220,6 +221,15 @@
       padding: 0;
       border: none;
       background: transparent;
+      vertical-align: middle;
+    }
+    .bar-cell .continuous-bar {
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .bar-cell .milestone {
+      top: 50%;
+      transform: translateY(-50%);
     }
     .empty-cell {
       background: transparent !important;
