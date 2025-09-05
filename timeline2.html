@@ -6,300 +6,83 @@
     body {
       background: linear-gradient(135deg, #181c1f 0%, #013220 100%);
       color: #e8f5e9;
-      font-family: Arial, sans-serif;
+      font-family: "Segoe UI", sans-serif;
       margin: 40px;
     }
     h2 {
-      color: #e8f5e9;
-      font-size: 2.2em;
+      color: #ffffff;
+      font-size: 2em;
       font-weight: bold;
-      letter-spacing: 1px;
       margin-bottom: 0.1em;
-      background: linear-gradient(90deg, #b2dfdb 0%, #66ff66 100%);
+      background: linear-gradient(90deg, #ffff03 0%, #84bd73 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-fill-color: transparent;
-      text-shadow: 0 2px 12px #23272a88;
+      text-shadow: 0 0px 0px #ffffff99;
     }
     #loading { font-size: 18px; color: #b2dfdb; }
     #error { color: #ffb3b3; font-size: 16px; }
-    .filter-container {
-      margin: 5px 0 8px 0;
-      padding: 5px 8px;
-      background: linear-gradient(90deg, #23272a 60%, #014d3b 100%);
-      border-radius: 8px;
-      box-shadow: 0 2px 8px #181c1f44;
-      border: 1px solid #b2dfdb44;
-      display: inline-block;
-    }
-    .filter-toggle {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .toggle-switch {
-      position: relative;
-      display: inline-block;
-      width: 40px;
-      height: 14px;
-    }
-    .toggle-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: #333;
-      transition: .4s;
-      border-radius: 14px;
-      border: 1px solid #555;
-    }
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 14px;
-      width: 14px;
-      left: 1px;
-      bottom: 1px;
-      background: #e8f5e9;
-      transition: .4s;
-      border-radius: 50%;
-    }
-    input:checked + .slider {
-      background: linear-gradient(90deg, #66ff66 60%, #b2dfdb 100%);
-      border: 1px solid #66ff66;
-    }
-    input:checked + .slider:before {
-      transform: translateX(22px);
-      background: #222;
-    }
-    .filter-label {
-      color: #b2dfdb;
-      font-size: 14px;
-      font-weight: bold;
-    }
     .table-wrapper {
-      margin-top: 0.25rem;
-      box-shadow: 0 8px 32px #000a;
-      border-radius: 14px;
+      margin-top: .5rem;
       background: linear-gradient(135deg, #23272a 60%, #014d3b 100%);
-      padding: 16px 0 16px 0;
-      position: relative;
+      border-radius: 14px;
+      box-shadow: 0 8px 32px #000a;
       display: flex;
       overflow: hidden;
     }
-    .frozen-column {
-      width: 200px;
-      min-width: 200px;
-      background: linear-gradient(90deg, #181c1f 60%, #014d3b 100%);
-      z-index: 100;
-      box-shadow: 2px 0 8px rgba(35, 39, 42, 0.8);
-      border-right: 2px solid #333;
-    }
-    .scrollable-content {
-      flex: 1;
-      overflow-x: auto;
-      max-width: calc(100vw - 280px);
-    }
+    .frozen-column { width:200px; background:#181c1f; }
+    .scrollable-content { flex:1; overflow-x:auto; }
+
     .frozen-table, .main-table {
-      width: 100%;
       border-collapse: collapse;
-      background: transparent;
-      color: #e8f5e9;
-      font-size: 0.95em;
+      color:#e8f5e9;
+      font-size: .95em;
       table-layout: fixed;
     }
-    .frozen-table {
-      width: 200px;
-    }
     .frozen-table th, .frozen-table td {
-      width: 200px;
-      padding: 4px 8px;
-      text-align: left;
-      border: 1px solid #333;
-      background: transparent;
-      height: 30px;
-      vertical-align: middle;
-      box-sizing: border-box;
-    }
-    .frozen-table th {
-      background: linear-gradient(90deg, #222 60%, #014d3b 100%);
-      color: #b2dfdb;
-      font-weight: bold;
-      border-bottom: 2px solid #b2dfdb44;
-    }
-    .frozen-table td {
-      background: linear-gradient(90deg, #181c1f 60%, #014d3b 100%);
-      color: #e8f5e9;
-      font-weight: bold;
+      width:200px; padding:4px 8px;
+      border:1px solid #333;
+      text-align:left;
     }
     .main-table th, .main-table td {
-      border: 1px solid #333;
-      padding: 2px 2px;
-      text-align: center;
-      min-width: 16px;
-      max-width: 20px;
-      position: relative;
-      font-size: 0.95em;
-      background: transparent;
-      height: 30px;
-      vertical-align: middle;
-      box-sizing: border-box;
+      border:1px solid #333;
+      min-width:16px;
+      height:30px;
+      text-align:center;
+      position:relative;
     }
     .main-table th {
-      background: linear-gradient(90deg, #222 60%, #014d3b 100%);
-      color: #b2dfdb;
-      font-weight: bold;
-      border-bottom: 2px solid #b2dfdb44;
-    }
-    .phase2 {
-      background: linear-gradient(90deg, #ffff66 60%, #f7e9a0 100%);
-      color: #222;
-      box-shadow: 0 2px 8px #cccc0055;
-    }
-    .phase23 {
-      background: linear-gradient(90deg, #bfff00 60%, #e6ffcc 100%);
-      color: #222;
-      box-shadow: 0 2px 8px #80b30055;
-    }
-    .phase3 {
-      background: linear-gradient(90deg, #66ff66 60%, #b2dfdb 100%);
-      color: #222;
-      box-shadow: 0 2px 8px #00990055;
-    }
-    .milestone {
-      width: 16px;
-      height: 16px;
-      line-height: 16px;
-      font-size: 0.95em;
-      background: linear-gradient(135deg, #ffd700 60%, #fffbe6 100%);
-      color: #222 !important;
-      font-weight: bold;
-      border-radius: 50%;
-      display: inline-block;
-      cursor: pointer;
-      box-shadow: 0 2px 8px #ffd70055;
-      border: 1px solid #e8f5e9;
-    }
-    .today-marker {
-      width: 18px;
-      height: 18px;
-      line-height: 18px;
-      font-size: 2em;
-      color: #fce805 !important;
-      display: inline-block;
-      cursor: pointer;
-      position: absolute;
-      left: 50%;
-      top: 2px;
-      transform: translateX(-50%);
-      z-index: 10;
-      text-shadow: 0px 0px 22px #f0c82a88;
+      background:#222;
+      color:#b2dfdb;
     }
     .continuous-bar {
-      height: 18px;
-      border-radius: 6px;
-      width: 100%;
-      position: absolute;
-      left: 0;
-      top: 0;
-      z-index: 1;
-      opacity: 1;
-      box-shadow: 0 2px 8px #23272a55;
+      height:18px; border-radius:6px;
+      width:100%; position:absolute;
+      left:0; top:0;
+      box-shadow:0 2px 8px #23272a55;
     }
-    .bar-cell {
-      position: relative;
-      padding: 0;
-      border: none;
-      background: transparent;
+    .phase2  { background:linear-gradient(90deg,#ffff66,#f7e9a0); }
+    .phase23 { background:linear-gradient(90deg,#bfff00,#e6ffcc); }
+    .phase3  { background:linear-gradient(90deg,#66ff66,#b2dfdb); }
+    .milestone {
+      position:absolute; top:0; left:50%;
+      transform:translateX(-50%);
+      width:16px; height:16px; line-height:16px;
+      background:linear-gradient(135deg,#ffd700,#fffbe6);
+      border-radius:50%;
+      border:1px solid #e8f5e9;
+      font-size:.9em; font-weight:bold; color:#222;
+      z-index:2;
     }
-    .empty-cell {
-      background: transparent !important;
-      border: 1px solid #333;
+    .today-marker {
+      position:absolute; top:2px; left:50%;
+      transform:translateX(-50%);
+      font-size:1.4em; color:#fce805;
+      text-shadow:0 0 6px #f0c82a88;
     }
-    .year-divider {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 8px;
-      background: linear-gradient(to bottom, #b2dfdbcc 0%, #23272a 100%);
-      z-index: 10;
-      pointer-events: none;
-      border-radius: 4px;
-      transition: background 0.2s;
-      box-shadow: 0 0 12px #b2dfdb88;
-    }
-    .legend {
-      margin-top: 32px;
-      background: linear-gradient(90deg, #23272a 60%, #014d3b 100%);
-      color: #e8f5e9;
-      border-radius: 8px;
-      padding: 12px 18px;
-      font-size: 0.98em;
-      display: inline-block;
-      box-shadow: 0 2px 8px #181c1f44;
-      border: 1px solid #b2dfdb44;
-    }
-    .legend-item {
-      display: inline-flex;
-      align-items: center;
-      margin-right: 18px;
-      margin-bottom: 6px;
-      gap: 6px;
-      vertical-align: top;
-    }
-    .legend-bar {
-      display: inline-block;
-      width: 22px;
-      height: 14px;
-      border-radius: 4px;
-      box-shadow: 0 2px 8px #23272a55;
-      flex-shrink: 0;
-    }
-    .legend-phase2 { background: linear-gradient(90deg, #ffff66 60%, #f7e9a0 100%); border: 1px solid #cccc00;}
-    .legend-phase23 { background: linear-gradient(90deg, #bfff00 60%, #e6ffcc 100%); border: 1px solid #80b300;}
-    .legend-phase3 { background: linear-gradient(90deg, #66ff66 60%, #b2dfdb 100%); border: 1px solid #009900;}
-    .legend-star {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      line-height: 16px;
-      font-size: 0.9em;
-      background: linear-gradient(135deg, #ffd700 60%, #fffbe6 100%);
-      color: #222;
-      border-radius: 50%;
-      text-align: center;
-      font-weight: bold;
-      box-shadow: 0 2px 8px #ffd70055;
-      border: 1px solid #e8f5e9;
-      flex-shrink: 0;
-    }
-    .legend-sun {
-      display: inline-block;
-      width: 18px;
-      height: 18px;
-      line-height: 18px;
-      font-size: 0.9em;
-      color: #ff8800;
-      text-align: center;
-      flex-shrink: 0;
-      text-shadow: 0 0 4px #ff880088;
-    }
-    a {
-      color: #b2dfdb;
-      text-decoration: underline;
-      transition: color 0.2s;
-    }
-    a:hover {
-      color: #ffd700;
-      text-decoration: underline;
+    /* Thick year separators */
+    .main-table .year-start { border-left:4px solid #ffd700 !important; }
+    .main-table thead tr:first-child th.year-header:not(:first-child) {
+      border-left:4px solid #ffd700 !important;
     }
   </style>
 </head>
@@ -307,426 +90,70 @@
   <h2>LC / ME Clinical Trials Watchlist</h2>
   <div id="loading">Loading data...</div>
   <div id="error" style="display:none"></div>
-  
-  <div class="filter-container" id="filter_container" style="display:none">
-    <div class="filter-toggle">
-      <span class="filter-label">Starred only:</span>
-      <label class="toggle-switch">
-        <input type="checkbox" id="star_filter">
-        <span class="slider"></span>
-      </label>
-    </div>
-  </div>
-  
   <div class="table-wrapper" id="table_wrapper" style="display:none">
-    <div class="frozen-column">
-      <table class="frozen-table" id="frozen_table"></table>
-    </div>
-    <div class="scrollable-content">
-      <div style="position:relative;">
-        <table class="main-table" id="main_table"></table>
-        <div id="year-dividers"></div>
-      </div>
-    </div>
+    <div class="frozen-column"><table class="frozen-table" id="frozen_table"></table></div>
+    <div class="scrollable-content"><table class="main-table" id="main_table"></table></div>
   </div>
-  
-  <div class="legend">
-    <span class="legend-item"><span class="legend-bar legend-phase2"></span>Phase 2</span>
-    <span class="legend-item"><span class="legend-bar legend-phase23"></span>Phase 2/3</span>
-    <span class="legend-item"><span class="legend-bar legend-phase3"></span>Phase 3</span>
-    <span class="legend-item"><span class="legend-star">&#9733;</span>Primary completion date</span>
-    <span class="legend-item"><span class="legend-sun">☀️</span>Today</span>
-  </div>
-  <script>
-    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSnTg3Oy4cTr7XQERGyaIECozT0JyY4jj3V6n90ys5hMA99tJTCkwJ9Bd3st3Nw8NwUbKdLjpOTWJtv/pub?gid=0&single=true&output=csv';
 
-    let allTrials = []; // Store all trials for filtering
+<script>
+const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSnTg3Oy4cTr7XQERGyaIECozT0JyY4jj3V6n90ys5hMA99tJTCkwJ9Bd3st3Nw8NwUbKdLjpOTWJtv/pub?gid=0&single=true&output=csv';
+let allTrials=[];
 
-    function parseDate(str) {
-      if (!str) return null;
-      let d = new Date(str);
-      if (isNaN(d)) {
-        let parts = str.split('/');
-        if (parts.length === 3) {
-          return new Date(parts[2], parts[0]-1, parts[1]);
-        }
-        return null;
-      }
-      return d;
-    }
+function parseDate(str){ if(!str) return null; const d=new Date(str); if(!isNaN(d)) return d; return null; }
+function getMonthKey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0'); }
+function phaseClass(p){ if(p==='Phase 2')return'phase2'; if(p==='Phase 2/3')return'phase23'; if(p==='Phase 3')return'phase3'; return''; }
+function parseCSVLine(l){const re=/(\"([^\"]|\"\")*\"|[^,]*)(,|$)/g;let a=[],m;while((m=re.exec(l))!==null){let v=m[1];if(v.startsWith('"')&&v.endsWith('"'))v=v.slice(1,-1).replace(/""/g,'"');a.push(v.trim());if(m[3]==='')break;}return a;}
 
-    function showError(msg) {
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('table_wrapper').style.display = 'none';
-      document.getElementById('filter_container').style.display = 'none';
-      let err = document.getElementById('error');
-      err.innerText = msg;
-      err.style.display = '';
-    }
-
-    function getMonthKey(date) {
-      return date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0');
-    }
-
-    function getMonthLabel(date) {
-      return date.toLocaleString('default', { month: 'short' }) + ' ' + date.getFullYear();
-    }
-
-    function phaseClass(phase) {
-      if (phase === 'Phase 2') return 'phase2';
-      if (phase === 'Phase 2/3') return 'phase23';
-      if (phase === 'Phase 3') return 'phase3';
-      return '';
-    }
-
-    // Robust CSV parser for quoted fields
-    function parseCSVLine(line) {
-      const regex = /("([^"]|"")*"|[^,]*)(,|$)/g;
-      let cols = [];
-      let match;
-      while ((match = regex.exec(line)) !== null) {
-        let val = match[1];
-        if (val.startsWith('"') && val.endsWith('"')) {
-          val = val.slice(1, -1).replace(/""/g, '"');
-        }
-        cols.push(val.trim());
-        if (match[3] === '') break;
-      }
-      return cols;
-    }
-
-    function isStarred(trial) {
-      return trial['Star'] && trial['Star'].toLowerCase() === 'x';
-    }
-
-    function alignTableRows() {
-      // Force row height alignment after tables are rendered
-      setTimeout(() => {
-        const frozenRows = document.querySelectorAll('#frozen_table tbody tr');
-        const mainRows = document.querySelectorAll('#main_table tbody tr');
-        
-        // Ensure both tables have the same number of rows
-        const minRows = Math.min(frozenRows.length, mainRows.length);
-        
-        for (let i = 0; i < minRows; i++) {
-          const frozenRowHeight = frozenRows[i].offsetHeight;
-          const mainRowHeight = mainRows[i].offsetHeight;
-          const maxHeight = Math.max(frozenRowHeight, mainRowHeight);
-          
-          // Set both rows to the same height
-          frozenRows[i].style.height = maxHeight + 'px';
-          mainRows[i].style.height = maxHeight + 'px';
-        }
-        
-        // Also align header rows
-        const frozenHeaders = document.querySelectorAll('#frozen_table thead tr');
-        const mainHeaders = document.querySelectorAll('#main_table thead tr');
-        
-        for (let i = 0; i < Math.min(frozenHeaders.length, mainHeaders.length); i++) {
-          const frozenHeaderHeight = frozenHeaders[i].offsetHeight;
-          const mainHeaderHeight = mainHeaders[i].offsetHeight;
-          const maxHeaderHeight = Math.max(frozenHeaderHeight, mainHeaderHeight);
-          
-          frozenHeaders[i].style.height = maxHeaderHeight + 'px';
-          mainHeaders[i].style.height = maxHeaderHeight + 'px';
-        }
-      }, 50); // Small delay to ensure DOM is fully rendered
-    }
-
-    function syncScroll() {
-      const frozenTable = document.getElementById('frozen_table');
-      const mainTable = document.getElementById('main_table');
-      const scrollableContent = document.querySelector('.scrollable-content');
-
-      if (!frozenTable || !scrollableContent) return;
-
-      // Sync vertical scroll between tables
-      const scrollHandler = function() {
-        frozenTable.style.transform = `translateY(-${this.scrollTop}px)`;
-      };
-      
-      scrollableContent.addEventListener('scroll', scrollHandler);
-    }
-
-    function drawTable(trials) {
-      if (!trials.length) {
-        document.getElementById('table_wrapper').innerHTML = '<div style="color: #b2dfdb; padding: 20px; text-align: center;">No trials match the current filter.</div>';
-        return;
-      }
-
-      trials.sort((a, b) => parseDate(a['PC']) - parseDate(b['PC']));
-
-      // Find min/max month for columns, but start at Jan 2025
-      let minDate = new Date(2025, 0, 1); // Jan 2025
-      let maxDate = null;
-      trials.forEach(trial => {
-        let e = parseDate(trial['End']);
-        if (!maxDate || e > maxDate) maxDate = e;
-      });
-
-      // Get current date
-      const today = new Date();
-
-      // Build month keys from Jan 2025 to maxDate
-      let months = [];
-      let d = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
-      let end = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
-      while (d <= end) {
-        months.push(getMonthKey(d));
-        d.setMonth(d.getMonth() + 1);
-      }
-
-      // Group months by year and quarter, always 3 months per quarter
-      let grouped = {};
-      months.forEach(mk => {
-        let [year, m] = mk.split('-');
-        let monthNum = parseInt(m, 10);
-        let q = Math.floor((monthNum - 1) / 3) + 1;
-        if (!grouped[year]) grouped[year] = {1: [], 2: [], 3: [], 4: []};
-        grouped[year][q].push(mk);
-      });
-
-      // Ensure each quarter has 3 months (fill with empty placeholders if needed)
-      Object.keys(grouped).forEach(year => {
-        for (let q = 1; q <= 4; q++) {
-          while (grouped[year][q].length < 3) {
-            grouped[year][q].push(''); // Add empty string for missing months
-          }
-        }
-      });
-
-      // Build frozen column table (interventions)
-      let frozenHtml = '<thead>';
-      frozenHtml += '<tr><th>Intervention</th></tr>';
-      frozenHtml += '<tr><th></th></tr>';
-      frozenHtml += '</thead><tbody>';
-      
-      trials.forEach(trial => {
-        let interventionCell;
-        const starIcon = isStarred(trial) ? '<span style="color: #ffd700; font-size: 0.9em; margin-right: 3px;">★</span>' : '';
-        
-        // Build condition indicators
-        let conditionIcons = '';
-        if (trial['LC'] && trial['LC'].toLowerCase() === 'x') {
-          conditionIcons += '<span style="color: #42e0f5; font-size: .8em; margin-left: 2px; font-weight: bold;">🟧</span>';
-        }
-        if (trial['ME'] && trial['ME'].toLowerCase() === 'x') {
-          conditionIcons += '<span style="color: #b2dfdb; font-size: .8em; margin-left: 1px; font-weight: bold;">Ⓜ️</span>';
-        }
-        
-        if (trial['Link']) {
-          interventionCell = `${starIcon}<a href="${trial['Link']}" target="_blank" style="color:inherit;text-decoration:underline;">${trial['Intervention']}</a>${conditionIcons}`;
-        } else {
-          interventionCell = `${starIcon}${trial['Intervention']}${conditionIcons}`;
-        }
-        frozenHtml += `<tr><td>${interventionCell}</td></tr>`;
-      });
-      frozenHtml += '</tbody>';
-
-      // Build main table (timeline)
-      let mainHtml = '<thead>';
-      // First header row: years
-      mainHtml += '<tr>';
-      Object.keys(grouped).forEach(year => {
-        mainHtml += `<th colspan="12" style="background:#181c1f;color:#b2dfdb;">${year}</th>`;
-      });
-      mainHtml += '</tr>';
-      // Second header row: quarters
-      mainHtml += '<tr>';
-      Object.keys(grouped).forEach(year => {
-        for (let q = 1; q <= 4; q++) {
-          mainHtml += `<th colspan="3" style="background:#23272a;color:#b2dfdb;">Q${q}</th>`;
-        }
-      });
-      mainHtml += '</tr>';
-      mainHtml += '</thead><tbody>';
-      
-      // Table rows
-      trials.forEach(trial => {
-        mainHtml += '<tr>';
-        let start = parseDate(trial['Start']);
-        let end = parseDate(trial['End']);
-        let pc = parseDate(trial['PC']);
-        let phase = trial['Phase'];
-        let trialName = trial['Trial'];
-
-        // Build flat months array (with empty placeholders)
-        let flatMonths = [];
-        Object.keys(grouped).forEach(year => {
-          for (let q = 1; q <= 4; q++) {
-            grouped[year][q].forEach(mk => flatMonths.push(mk));
-          }
-        });
-
-        // Find start/end month index in flatMonths
-        let startIdx = flatMonths.findIndex(mk => {
-          if (!mk) return false;
-          let dt = new Date(mk.split('-')[0], mk.split('-')[1]-1, 1);
-          return dt.getFullYear() === start.getFullYear() && dt.getMonth() === start.getMonth();
-        });
-        let endIdx = flatMonths.findIndex(mk => {
-          if (!mk) return false;
-          let dt = new Date(mk.split('-')[0], mk.split('-')[1]-1, 1);
-          return dt.getFullYear() === end.getFullYear() && dt.getMonth() === end.getMonth();
-        });
-        let pcIdx = flatMonths.findIndex(mk => {
-          if (!mk) return false;
-          let dt = new Date(mk.split('-')[0], mk.split('-')[1]-1, 1);
-          return dt.getFullYear() === pc.getFullYear() && dt.getMonth() === pc.getMonth();
-        });
-
-        // Render cells before bar
-        for (let i = 0; i < startIdx; i++) {
-          mainHtml += `<td class="empty-cell"></td>`;
-        }
-        // Render bar cells
-        let barColspan = endIdx - startIdx + 1;
-        if (barColspan > 0) {
-          // Build detailed tooltip
-          let tooltip = `<b>${trialName}</b>`;
-          if (trial['Trialist'] && trial['Trialist'].trim()) {
-            tooltip += `\nTrialist: ${trial['Trialist']}`;
-          }
-          tooltip += `\nStart: ${trial['Start']}`;
-          tooltip += `\nEnd: ${trial['End']}`;
-          tooltip += `\nPrimary Completion: ${trial['PC']}`;
-          
-          mainHtml += `<td class="bar-cell" colspan="${barColspan}" style="position:relative;background:transparent;">`;
-          mainHtml += `<div class="continuous-bar ${phaseClass(phase)}" title="${tooltip}"></div>`;
-          if (pcIdx >= startIdx && pcIdx <= endIdx) {
-            let milestonePos = ((pcIdx - startIdx + 0.5) / barColspan) * 100;
-            mainHtml += `<span class="milestone" title="${tooltip}" style="position:absolute; left:${milestonePos}%; top:0; transform:translate(-50%,0); z-index:2;">&#9733;</span>`;
-          }
-          mainHtml += `</td>`;
-        }
-        // Render cells after bar
-        for (let i = endIdx + 1; i < flatMonths.length; i++) {
-          mainHtml += `<td class="empty-cell"></td>`;
-        }
-        mainHtml += '</tr>';
-      });
-      mainHtml += '</tbody>';
-
-      document.getElementById('frozen_table').innerHTML = frozenHtml;
-      document.getElementById('main_table').innerHTML = mainHtml;
-
-      // Add today marker to the appropriate quarter header cell
-      setTimeout(() => {
-        const table = document.querySelector('#main_table');
-        if (table) {
-          const quarterHeaders = table.querySelectorAll('thead tr:nth-child(2) th');
-          
-          // Build flat months array again to find today's position
-          let flatMonths = [];
-          Object.keys(grouped).forEach(year => {
-            for (let q = 1; q <= 4; q++) {
-              grouped[year][q].forEach(mk => flatMonths.push(mk));
-            }
-          });
-          
-          // Find which quarter today falls into
-          const todayMonthKey = getMonthKey(today);
-          let todayQuarterIdx = -1;
-          
-          for (let i = 0; i < flatMonths.length; i += 3) {
-            const quarterMonths = flatMonths.slice(i, i + 3);
-            if (quarterMonths.includes(todayMonthKey)) {
-              todayQuarterIdx = Math.floor(i / 3);
-              break;
-            }
-          }
-          
-          if (todayQuarterIdx >= 0 && todayQuarterIdx < quarterHeaders.length) {
-            const quarterHeader = quarterHeaders[todayQuarterIdx];
-            quarterHeader.style.position = 'relative';
-            const todayMarker = document.createElement('span');
-            todayMarker.className = 'today-marker';
-            todayMarker.innerHTML = '☀️';
-            todayMarker.title = `Today (${today.toLocaleDateString()})`;
-            quarterHeader.appendChild(todayMarker);
-          }
-        }
-      }, 100);
-
-      // Setup scroll synchronization and row alignment
-      syncScroll();
-      alignTableRows();
-
-      // Add year dividers
-      setTimeout(() => {
-        const table = document.querySelector('#main_table');
-        if (table) {
-          const thead = table.querySelector('thead tr');
-          const ths = Array.from(thead.querySelectorAll('th'));
-          const container = document.getElementById('year-dividers');
-          container.innerHTML = '';
-          let yearCol = 0;
-          Object.keys(grouped).forEach((year, i) => {
-            if (i > 0) {
-              let idx = yearCol;
-              if (ths[idx]) {
-                let divider = document.createElement('div');
-                divider.className = 'year-divider';
-                divider.style.left = (ths[idx].offsetLeft - 8) + 'px';
-                divider.style.height = (table.offsetHeight + 8) + 'px';
-                divider.style.top = '-4px';
-                container.appendChild(divider);
-              }
-            }
-            yearCol += 12;
-          });
-        }
-      }, 100);
-    }
-
-    function applyFilter() {
-      const showStarredOnly = document.getElementById('star_filter').checked;
-      const filteredTrials = showStarredOnly ? allTrials.filter(isStarred) : allTrials;
-      drawTable(filteredTrials);
-    }
-
-    async function fetchAndDraw() {
-      try {
-        const response = await fetch(csvUrl);
-        const csvText = await response.text();
-        const lines = csvText.split('\n').filter(l => l.trim());
-        if (!lines.length) return showError('No data found.');
-        const headers = parseCSVLine(lines[0]);
-        const required = ['Trial', 'Intervention', 'Start', 'PC', 'End', 'Phase'];
-        const idx = {};
-        required.forEach(col => { idx[col] = headers.indexOf(col); });
-        if (Object.values(idx).some(i => i === -1)) return showError('Missing required columns in data.');
-        
-        allTrials = lines.slice(1).map(line => {
-          let cols = parseCSVLine(line);
-          let obj = {};
-          headers.forEach((h, i) => obj[h] = (cols[i] || '').trim());
-          return obj;
-        }).filter(row =>
-          row['Intervention'] && row['Start'] && row['End'] && row['PC'] && row['Trial']
-        );
-        
-        if (!allTrials.length) {
-          console.error('Parsed rows:', lines.slice(1).map(parseCSVLine));
-          return showError('No valid data rows found.');
-        }
-
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('filter_container').style.display = '';
-        document.getElementById('table_wrapper').style.display = '';
-
-        // Setup filter event listener
-        document.getElementById('star_filter').addEventListener('change', applyFilter);
-
-        // Initial draw with all trials
-        applyFilter();
-
-      } catch (e) {
-        showError('Failed to load data: ' + e);
+async function drawTable(trials){
+  trials.sort((a,b)=>parseDate(a['PC'])-parseDate(b['PC']));
+  const minDate=new Date(2025,0,1);
+  let maxDate=new Date(2025,0,1);
+  trials.forEach(t=>{const e=parseDate(t['End']);if(e&&e>maxDate)maxDate=e;});
+  const months=[],d=new Date(minDate);while(d<=maxDate){months.push(getMonthKey(d));d.setMonth(d.getMonth()+1);}
+  const years=[...new Set(months.map(m=>m.split('-')[0]))];
+  // frozen col
+  let frozen='<thead><tr><th>Intervention</th></tr></thead><tbody>';
+  trials.forEach(t=>{frozen+=`<tr><td>${t['Intervention']}</td></tr>`;});
+  frozen+='</tbody>'; document.getElementById('frozen_table').innerHTML=frozen;
+  // headers
+  let main='<thead><tr>';
+  years.forEach(y=>{main+=`<th colspan="12" class="year-header">${y}</th>`;}); main+='</tr><tr>';
+  years.forEach(y=>{for(let q=1;q<=4;q++){const c=(q===1)?'year-start':'';main+=`<th colspan="3" class="${c}">Q${q}</th>`;}}); 
+  main+='</tr></thead><tbody>';
+  // rows
+  trials.forEach(trial=>{
+    main+='<tr>';
+    const start=parseDate(trial['Start']), end=parseDate(trial['End']), pc=parseDate(trial['PC']);
+    const startIdx=months.indexOf(getMonthKey(start)), endIdx=months.indexOf(getMonthKey(end)), pcIdx=months.indexOf(getMonthKey(pc));
+    for(let y=0;y<years.length;y++){
+      for(let m=0;m<12;m++){
+        const colIdx=y*12+m;
+        const atYearStart=(m===0)?'year-start':'';
+        if(colIdx<startIdx||colIdx>endIdx){ main+=`<td class="${atYearStart}"></td>`; continue; }
+        // find segment length until either endIdx or year end
+        let segEnd=Math.min(endIdx,(y*12+11));
+        const span=segEnd-colIdx+1;
+        main+=`<td colspan="${span}" class="${atYearStart}" style="position:relative">`;
+        main+=`<div class="continuous-bar ${phaseClass(trial['Phase'])}" title="${trial['Trial']}"></div>`;
+        if(pcIdx>=colIdx && pcIdx<=segEnd){const offset=(pcIdx-colIdx+0.5)/span*100;main+=`<span class="milestone" style="left:${offset}%">&#9733;</span>`;}
+        main+='</td>'; m+=span-1;
       }
     }
+    main+='</tr>';
+  });
+  main+='</tbody>'; document.getElementById('main_table').innerHTML=main;
+  // today marker
+  const today=getMonthKey(new Date()), idx=months.indexOf(today);
+  if(idx>=0){const qh=document.querySelectorAll('#main_table thead tr:nth-child(2) th')[Math.floor(idx/3)];if(qh){qh.style.position='relative';qh.innerHTML+='<span class="today-marker">☀️</span>';}}
+  document.getElementById('loading').style.display='none';document.getElementById('table_wrapper').style.display='';
+}
 
-    fetchAndDraw();
-  </script>
+async function fetchAndDraw(){
+  const res=await fetch(csvUrl);const txt=await res.text();const lines=txt.split('\n').filter(l=>l.trim());
+  const headers=parseCSVLine(lines[0]);allTrials=lines.slice(1).map(l=>{let c=parseCSVLine(l),o={};headers.forEach((h,i)=>o[h]=c[i]||'');return o;});
+  drawTable(allTrials.filter(r=>r['Intervention']));
+}
+fetchAndDraw();
+</script>
 </body>
 </html>
