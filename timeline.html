@@ -242,22 +242,33 @@
       left: 0;
       width: 0;
       pointer-events: none;
-      z-index: 200;
+      z-index: 0;
     }
     .year-divider-inner {
       position: absolute;
       top: 0;
       bottom: 0;
       left: 50%;
-      width: 32px; /* Make the divider much thicker */
+      width: 6px; /* thinner divider */
       transform: translateX(-50%);
-      background: linear-gradient(to bottom, #ffff03 0%, #84bd73 100%);
-      opacity: 0.35;
-      border-radius: 16px;
-      box-shadow: 0 0 32px #ffff03cc;
-      z-index: 201;
+      background: #333333; /* #54605f with subtle transparency */
+      border-radius: 0; /* no rounding */
+      box-shadow: none; /* remove glow */
+      z-index: 0;
       pointer-events: none;
       border: none;
+    }
+    /* Ensure timeline renders above the divider overlay */
+    .main-table { position: relative; z-index: 2; }
+    /* Overlay container for year dividers */
+    #year-dividers {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 0; /* behind the table */
     }
     .legend {
       margin-top: 32px;
@@ -372,7 +383,6 @@
   </div>
   <script>
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSnTg3Oy4cTr7XQERGyaIECozT0JyY4jj3V6n90ys5hMA99tJTCkwJ9Bd3st3Nw8NwUbKdLjpOTWJtv/pub?gid=0&single=true&output=csv';
-
     let allTrials = []; // Store all trials for filtering
 
     function parseDate(str) {
@@ -485,6 +495,35 @@
       };
       
       scrollableContent.addEventListener('scroll', scrollHandler);
+    }
+
+    // Draw thick yellow dividers between each year segment
+    function drawYearDividers() {
+      const dividersContainer = document.getElementById('year-dividers');
+      const wrapper = dividersContainer ? dividersContainer.parentElement : null; // the relative container
+      const yearHeaders = document.querySelectorAll('#main_table thead tr:first-child th');
+      if (!dividersContainer || !wrapper || !yearHeaders.length) return;
+
+      // Clear existing dividers
+      dividersContainer.innerHTML = '';
+
+      const wrapperRect = wrapper.getBoundingClientRect();
+
+      // Place a divider at each boundary between years (exclude the very first left edge)
+      for (let i = 0; i < yearHeaders.length - 1; i++) {
+        const thisRect = yearHeaders[i].getBoundingClientRect();
+        const boundaryX = thisRect.right - wrapperRect.left; // boundary between year i and i+1
+
+        const divider = document.createElement('div');
+        divider.className = 'year-divider';
+        divider.style.left = boundaryX + 'px';
+
+        const inner = document.createElement('div');
+        inner.className = 'year-divider-inner';
+        divider.appendChild(inner);
+
+        dividersContainer.appendChild(divider);
+      }
     }
 
     function drawTable(trials) {
@@ -639,7 +678,7 @@
           mainHtml += `<div class="continuous-bar ${phaseClass(phase)}" title="${tooltip}"></div>`;
           if (pcIdx >= startIdx && pcIdx <= endIdx) {
             let milestonePos = ((pcIdx - startIdx + 0.5) / barColspan) * 100;
-            mainHtml += `<span class="milestone" title="${tooltip}" style="position:absolute; left:${milestonePos}%; top:0; transform:translate(-50%,0); z-index:2;">&#9733;</span>`;
+            mainHtml += `<span class="milestone" title="${tooltip}" style="position:absolute; left:${milestonePos}%; top:50%; transform:translate(-50%,-50%); z-index:2;">&#9733;</span>`;
           }
           mainHtml += `</td>`;
         }
@@ -653,6 +692,8 @@
 
       document.getElementById('frozen_table').innerHTML = frozenHtml;
       document.getElementById('main_table').innerHTML = mainHtml;
+      // Draw vertical year dividers after DOM is updated
+      requestAnimationFrame(drawYearDividers);
 
       // Add today marker to the appropriate quarter header cell
       setTimeout(() => {
@@ -696,36 +737,6 @@
       syncScroll();
       alignTableRows();
 
-      // Add year dividers
-      setTimeout(() => {
-        const table = document.querySelector('#main_table');
-        if (table) {
-          const thead = table.querySelector('thead tr');
-          const ths = Array.from(thead.querySelectorAll('th'));
-          const container = document.getElementById('year-dividers');
-          container.innerHTML = '';
-          let yearCol = 0;
-          Object.keys(grouped).forEach((year, i) => {
-            if (i > 0) {
-              let idx = yearCol;
-              if (ths[idx]) {
-                let divider = document.createElement('div');
-                divider.className = 'year-divider';
-                divider.style.left = (ths[idx].offsetLeft - 16) + 'px'; // Center thick line
-                divider.style.height = (table.offsetHeight + 8) + 'px';
-                divider.style.top = '-4px';
-                // Add inner thick line
-                let inner = document.createElement('div');
-                inner.className = 'year-divider-inner';
-                inner.style.height = divider.style.height;
-                divider.appendChild(inner);
-                container.appendChild(divider);
-              }
-            }
-            yearCol += 12;
-          });
-        }
-      }, 100);
     }
 
     function applyFilter() {
@@ -788,6 +799,9 @@
         showError('Failed to load data: ' + e);
       }
     }
+
+    // Recompute dividers on resize to keep alignment accurate
+    window.addEventListener('resize', () => requestAnimationFrame(drawYearDividers));
 
     fetchAndDraw();
   </script>
