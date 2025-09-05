@@ -315,6 +315,10 @@
         <input type="checkbox" id="star_filter">
         <span class="slider"></span>
       </label>
+      <span class="filter-label" style="margin-left:18px;">🟧LC:</span>
+      <input type="checkbox" id="lc_filter" style="accent-color:#42e0f5; width:18px; height:18px;">
+      <span class="filter-label" style="margin-left:12px;">Ⓜ️ME:</span>
+      <input type="checkbox" id="me_filter" style="accent-color:#b2dfdb; width:18px; height:18px;">
     </div>
   </div>
   
@@ -397,6 +401,12 @@
 
     function isStarred(trial) {
       return trial['Star'] && trial['Star'].toLowerCase() === 'x';
+    }
+    function isLC(trial) {
+      return trial['LC'] && trial['LC'].toLowerCase() === 'x';
+    }
+    function isME(trial) {
+      return trial['ME'] && trial['ME'].toLowerCase() === 'x';
     }
 
     function alignTableRows() {
@@ -583,9 +593,9 @@
         let barColspan = endIdx - startIdx + 1;
         if (barColspan > 0) {
           // Build detailed tooltip
-          let tooltip = `<b>${trialName}</b>`;
+          let tooltip = `${trialName}`;
           if (trial['Trialist'] && trial['Trialist'].trim()) {
-            tooltip += `\nTrialist: ${trial['Trialist']}`;
+            tooltip += `\n${trial['Trialist']}`;
           }
           tooltip += `\nStart: ${trial['Start']}`;
           tooltip += `\nEnd: ${trial['End']}`;
@@ -681,7 +691,19 @@
 
     function applyFilter() {
       const showStarredOnly = document.getElementById('star_filter').checked;
-      const filteredTrials = showStarredOnly ? allTrials.filter(isStarred) : allTrials;
+      const showLCOnly = document.getElementById('lc_filter').checked;
+      const showMEOnly = document.getElementById('me_filter').checked;
+      let filteredTrials = allTrials;
+
+      if (showStarredOnly) {
+        filteredTrials = filteredTrials.filter(isStarred);
+      }
+      if (showLCOnly) {
+        filteredTrials = filteredTrials.filter(isLC);
+      }
+      if (showMEOnly) {
+        filteredTrials = filteredTrials.filter(isME);
+      }
       drawTable(filteredTrials);
     }
 
@@ -715,8 +737,10 @@
         document.getElementById('filter_container').style.display = '';
         document.getElementById('table_wrapper').style.display = '';
 
-        // Setup filter event listener
+        // Setup filter event listeners
         document.getElementById('star_filter').addEventListener('change', applyFilter);
+        document.getElementById('lc_filter').addEventListener('change', applyFilter);
+        document.getElementById('me_filter').addEventListener('change', applyFilter);
 
         // Initial draw with all trials
         applyFilter();
