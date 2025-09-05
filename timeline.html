@@ -188,6 +188,21 @@
       box-shadow: 0 2px 8px #ffd70055;
       border: 1px solid #e8f5e9;
     }
+    .today-marker {
+      width: 18px;
+      height: 18px;
+      line-height: 18px;
+      font-size: 2em;
+      color: #fce805 !important;
+      display: inline-block;
+      cursor: pointer;
+      position: absolute;
+      left: 50%;
+      top: 2px;
+      transform: translateX(-50%);
+      z-index: 10;
+      text-shadow: 0px 0px 22px #f0c82a88;
+    }
     .continuous-bar {
       height: 18px;
       border-radius: 6px;
@@ -213,13 +228,13 @@
       position: absolute;
       top: 0;
       bottom: 0;
-      width: 4px;
+      width: 8px;
       background: linear-gradient(to bottom, #b2dfdbcc 0%, #23272a 100%);
       z-index: 10;
       pointer-events: none;
-      border-radius: 2px;
+      border-radius: 4px;
       transition: background 0.2s;
-      box-shadow: 0 0 8px #b2dfdb88;
+      box-shadow: 0 0 12px #b2dfdb88;
     }
     .legend {
       margin-top: 32px;
@@ -266,6 +281,17 @@
       border: 1px solid #e8f5e9;
       flex-shrink: 0;
     }
+    .legend-sun {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      line-height: 18px;
+      font-size: 0.9em;
+      color: #ff8800;
+      text-align: center;
+      flex-shrink: 0;
+      text-shadow: 0 0 4px #ff880088;
+    }
     a {
       color: #b2dfdb;
       text-decoration: underline;
@@ -309,6 +335,7 @@
     <span class="legend-item"><span class="legend-bar legend-phase23"></span>Phase 2/3</span>
     <span class="legend-item"><span class="legend-bar legend-phase3"></span>Phase 3</span>
     <span class="legend-item"><span class="legend-star">&#9733;</span>Primary completion date</span>
+    <span class="legend-item"><span class="legend-sun">☀️</span>Today</span>
   </div>
   <script>
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSnTg3Oy4cTr7XQERGyaIECozT0JyY4jj3V6n90ys5hMA99tJTCkwJ9Bd3st3Nw8NwUbKdLjpOTWJtv/pub?gid=0&single=true&output=csv';
@@ -437,6 +464,9 @@
         if (!maxDate || e > maxDate) maxDate = e;
       });
 
+      // Get current date
+      const today = new Date();
+
       // Build month keys from Jan 2025 to maxDate
       let months = [];
       let d = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
@@ -475,10 +505,19 @@
         let interventionCell;
         const starIcon = isStarred(trial) ? '<span style="color: #ffd700; font-size: 0.9em; margin-right: 3px;">★</span>' : '';
         
+        // Build condition indicators
+        let conditionIcons = '';
+        if (trial['LC'] && trial['LC'].toLowerCase() === 'x') {
+          conditionIcons += '<span style="color: #42e0f5; font-size: .8em; margin-left: 2px; font-weight: bold;">🟧</span>';
+        }
+        if (trial['ME'] && trial['ME'].toLowerCase() === 'x') {
+          conditionIcons += '<span style="color: #b2dfdb; font-size: .8em; margin-left: 1px; font-weight: bold;">Ⓜ️</span>';
+        }
+        
         if (trial['Link']) {
-          interventionCell = `${starIcon}<a href="${trial['Link']}" target="_blank" style="color:inherit;text-decoration:underline;">${trial['Intervention']}</a>`;
+          interventionCell = `${starIcon}<a href="${trial['Link']}" target="_blank" style="color:inherit;text-decoration:underline;">${trial['Intervention']}</a>${conditionIcons}`;
         } else {
-          interventionCell = `${starIcon}${trial['Intervention']}`;
+          interventionCell = `${starIcon}${trial['Intervention']}${conditionIcons}`;
         }
         frozenHtml += `<tr><td>${interventionCell}</td></tr>`;
       });
@@ -543,11 +582,20 @@
         // Render bar cells
         let barColspan = endIdx - startIdx + 1;
         if (barColspan > 0) {
+          // Build detailed tooltip
+          let tooltip = `<b>${trialName}</b>`;
+          if (trial['Trialist'] && trial['Trialist'].trim()) {
+            tooltip += `\nTrialist: ${trial['Trialist']}`;
+          }
+          tooltip += `\nStart: ${trial['Start']}`;
+          tooltip += `\nEnd: ${trial['End']}`;
+          tooltip += `\nPrimary Completion: ${trial['PC']}`;
+          
           mainHtml += `<td class="bar-cell" colspan="${barColspan}" style="position:relative;background:transparent;">`;
-          mainHtml += `<div class="continuous-bar ${phaseClass(phase)}" title="${trialName}"></div>`;
+          mainHtml += `<div class="continuous-bar ${phaseClass(phase)}" title="${tooltip}"></div>`;
           if (pcIdx >= startIdx && pcIdx <= endIdx) {
             let milestonePos = ((pcIdx - startIdx + 0.5) / barColspan) * 100;
-            mainHtml += `<span class="milestone" title="${trialName}" style="position:absolute; left:${milestonePos}%; top:0; transform:translate(-50%,0); z-index:2;">&#9733;</span>`;
+            mainHtml += `<span class="milestone" title="${tooltip}" style="position:absolute; left:${milestonePos}%; top:0; transform:translate(-50%,0); z-index:2;">&#9733;</span>`;
           }
           mainHtml += `</td>`;
         }
@@ -561,6 +609,44 @@
 
       document.getElementById('frozen_table').innerHTML = frozenHtml;
       document.getElementById('main_table').innerHTML = mainHtml;
+
+      // Add today marker to the appropriate quarter header cell
+      setTimeout(() => {
+        const table = document.querySelector('#main_table');
+        if (table) {
+          const quarterHeaders = table.querySelectorAll('thead tr:nth-child(2) th');
+          
+          // Build flat months array again to find today's position
+          let flatMonths = [];
+          Object.keys(grouped).forEach(year => {
+            for (let q = 1; q <= 4; q++) {
+              grouped[year][q].forEach(mk => flatMonths.push(mk));
+            }
+          });
+          
+          // Find which quarter today falls into
+          const todayMonthKey = getMonthKey(today);
+          let todayQuarterIdx = -1;
+          
+          for (let i = 0; i < flatMonths.length; i += 3) {
+            const quarterMonths = flatMonths.slice(i, i + 3);
+            if (quarterMonths.includes(todayMonthKey)) {
+              todayQuarterIdx = Math.floor(i / 3);
+              break;
+            }
+          }
+          
+          if (todayQuarterIdx >= 0 && todayQuarterIdx < quarterHeaders.length) {
+            const quarterHeader = quarterHeaders[todayQuarterIdx];
+            quarterHeader.style.position = 'relative';
+            const todayMarker = document.createElement('span');
+            todayMarker.className = 'today-marker';
+            todayMarker.innerHTML = '☀️';
+            todayMarker.title = `Today (${today.toLocaleDateString()})`;
+            quarterHeader.appendChild(todayMarker);
+          }
+        }
+      }, 100);
 
       // Setup scroll synchronization and row alignment
       syncScroll();
@@ -581,15 +667,16 @@
               if (ths[idx]) {
                 let divider = document.createElement('div');
                 divider.className = 'year-divider';
-                divider.style.left = (ths[idx].offsetLeft - 2) + 'px';
-                divider.style.height = table.offsetHeight + 'px';
+                divider.style.left = (ths[idx].offsetLeft - 8) + 'px';
+                divider.style.height = (table.offsetHeight + 8) + 'px';
+                divider.style.top = '-4px';
                 container.appendChild(divider);
               }
             }
             yearCol += 12;
           });
         }
-      }, 0);
+      }, 100);
     }
 
     function applyFilter() {
