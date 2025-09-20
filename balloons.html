@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Balloons</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #043217;
+            /* very dark forest green */
+        }
+
+        .card {
+            background: linear-gradient(145deg, rgba(43, 94, 69, 0.95), rgba(14, 65, 39, 0.95));
+            border-radius: 4.5rem;
+            width: 80%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+        }
+
+        .link-text {
+            color: #ffe27a;
+            /* subtle light yellow */
+        }
+
+        .link-text:hover {
+            color: #9ad4f3;
+            /* subtle light blue accent */
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-12">
+    <div id="cards" class="grid grid-cols-1 md:grid-cols-2 gap-12 w-full max-w-4xl"></div>
+
+    <script>
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRM9NcaPWiCOvN-B6wdN0rcsANIZXFnFbkrtyKeLi0SJdZy0aZ_K51j1KUaWDV8uHXFmAdvjf1W4ZMT/pub?gid=0&single=true&output=csv"; // replace with your published CSV link
+
+        async function fetchCSV() {
+            const response = await fetch(CSV_URL);
+            const text = await response.text();
+            return text;
+        }
+
+        function parseCSV(text) {
+            const lines = text.trim().split(/\r?\n/);
+            const headers = lines[0].split(",");
+            const rows = lines.slice(1).map(line => {
+                const values = line.split(",");
+                let obj = {};
+                headers.forEach((h, i) => obj[h.trim()] = values[i].trim());
+                return obj;
+            });
+            return rows;
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function renderCards(rows) {
+            const container = document.getElementById("cards");
+            container.innerHTML = "";
+            rows.forEach((row, idx) => {
+                const card = document.createElement("div");
+
+                const offsetY = Math.floor(Math.random() * 60) - 30;
+                // Random extra height (0px to 40px)
+                const extraHeight = Math.floor(Math.random() * 41);
+
+                // Offset every other card slightly vertically for a staggered effect
+                const offset = idx % 2 === 0 ? "translate-y-2" : `translateY(${offsetY}px)`;
+                card.className = `card p-8 flex flex-col items-center text-center transform ${offset}`;
+
+
+                card.innerHTML = `
+          <div class="text-lg font-semibold text-white mb-2">${row.Name}</div>
+          <a href="${row.Link}" target="_blank" class="link-text text-sm font-medium">Link</a>
+        `;
+                container.appendChild(card);
+            });
+        }
+
+        (async function init() {
+            const text = await fetchCSV();
+            let rows = parseCSV(text);
+            rows = shuffle(rows);
+            renderCards(rows);
+        })();
+    </script>
+</body>
+
+</html>
