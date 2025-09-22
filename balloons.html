@@ -21,12 +21,17 @@
             max-width: 400px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             transition: transform 0.2s ease;
+            /* applies to the whole card */
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
             align-self: flex-start;
-            /* 👈 keeps each card hugging its own content */
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            /* lifts the whole card */
         }
 
         .link-text {
@@ -101,7 +106,7 @@
                 card.className = `card p-8`;
 
                 let innerHTML = `
-          <div class="transition-transform duration-200 hover:-translate-y-4 flex flex-col items-center justify-center w-full">
+          <div class="transition-transform duration-200 flex flex-col items-center justify-center w-full">
             <div class="text-lg font-semibold text-white mb-2">${row.Name}</div>
             <a href="${row.Link}" target="_blank" class="link-text text-sm font-medium mb-4">Link</a>
         `;
