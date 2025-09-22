@@ -11,67 +11,77 @@
     <style>
         body {
             background-color: #043217;
-            /* very dark forest green */
         }
 
         .card {
             background: linear-gradient(145deg, rgba(43, 94, 69, 0.95), rgba(14, 65, 39, 0.95));
-            border-radius: 4.5rem;
-            width: 80%;
+            border-radius: 2rem;
+            width: 100%;
             max-width: 400px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-            transition: transform 0.2s ease;
-            /* applies to the whole card */
+            transition: transform 0.2s ease, opacity 0.5s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
             align-self: flex-start;
+            padding: 1.5rem;
         }
 
         .card:hover {
             transform: translateY(-6px);
-            /* lifts the whole card */
         }
 
         .link-text {
             color: #ffe27a;
-            /* subtle light yellow */
         }
 
         .link-text:hover {
             color: #9ad4f3;
-            /* subtle light blue accent */
+        }
+
+        /* Responsive tweet container */
+        .tweet-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+            /* space above tweet */
+        }
+
+        .tweet-container blockquote.twitter-tweet {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        .tweet-container iframe {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
         }
 
         #cards {
-            gap: 3rem;
-        }
-
-        /* 👇 Fix embeds so they don’t force cards to stretch */
-        .twitter-tweet {
-            width: 100% !important;
-        }
-
-        iframe.twitter-tweet {
-            width: 100% !important;
-            height: auto !important;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 5xl;
+            margin: 0 auto;
         }
     </style>
 </head>
 
-<body class="min-h-screen flex items-center justify-center p-12">
-    <!-- Flex container -->
-    <div id="cards" class="flex flex-wrap items-start justify-center gap-12 w-full max-w-4xl"></div>
+<body class="min-h-screen p-6">
+    <div id="cards"></div>
 
     <script>
-        const CSV_URL =
-            "https://docs.google.com/spreadsheets/d/e/2PACX-1vRM9NcaPWiCOvN-B6wdN0rcsANIZXFnFbkrtyKeLi0SJdZy0aZ_K51j1KUaWDV8uHXFmAdvjf1W4ZMT/pub?gid=0&single=true&output=csv";
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRM9NcaPWiCOvN-B6wdN0rcsANIZXFnFbkrtyKeLi0SJdZy0aZ_K51j1KUaWDV8uHXFmAdvjf1W4ZMT/pub?gid=0&single=true&output=csv";
 
         async function fetchCSV() {
             const response = await fetch(CSV_URL);
-            const text = await response.text();
-            return text;
+            return await response.text();
         }
 
         function parseCSV(text) {
@@ -80,7 +90,7 @@
             return lines.slice(1).map(line => {
                 const values = line.split(",");
                 let obj = {};
-                headers.forEach((h, i) => (obj[h.trim()] = values[i] ? values[i].trim() : ""));
+                headers.forEach((h, i) => obj[h.trim()] = values[i] ? values[i].trim() : "");
                 return obj;
             });
         }
@@ -97,39 +107,66 @@
             const container = document.getElementById("cards");
             container.innerHTML = "";
 
-            for (let idx = 0; idx < rows.length; idx++) {
-                const row = rows[idx];
+            rows.forEach((row, idx) => {
                 const card = document.createElement("div");
-
+                card.className = "card";
                 card.style.opacity = 0;
 
-                card.className = `card p-8`;
-
-                let innerHTML = `
-          <div class="transition-transform duration-200 flex flex-col items-center justify-center w-full">
-            <div class="text-lg font-semibold text-white mb-2">${row.Name}</div>
-            <a href="${row.Link}" target="_blank" class="link-text text-sm font-medium mb-4">Link</a>
-        `;
-
-                if (row.TweetLink) {
-                    innerHTML += `<blockquote class="twitter-tweet" data-theme="dark"><a href="${row.TweetLink}"></a></blockquote>`;
-                }
-
-                innerHTML += `</div>`;
-                card.innerHTML = innerHTML;
-                container.appendChild(card);
-
-                // Fade-in
+                // Fade-in staggered
                 setTimeout(() => {
                     card.style.opacity = 1;
-                    card.style.transition = "opacity 0.5s ease, transform 0.5s ease";
                 }, idx * 100);
 
-                // Load Twitter widget for this card
-                if (row.TweetLink && window.twttr && window.twttr.widgets) {
-                    window.twttr.widgets.load(card);
+                // --- Name / Title ---
+                if (row.Name) {
+                    const title = document.createElement("div");
+                    title.className = "text-lg font-semibold text-white mb-2";
+                    title.textContent = row.Name;
+                    card.appendChild(title);
                 }
-            }
+
+                // --- Link ---
+                if (row.Link) {
+                    const link = document.createElement("a");
+                    link.href = row.Link;
+                    link.target = "_blank";
+                    link.className = "link-text text-sm font-medium mb-4";
+                    link.textContent = "Visit link";
+                    card.appendChild(link);
+                }
+
+                // --- Image for non-tweet cards ---
+                if (!row.TweetLink && row.Image) {
+                    const img = document.createElement("img");
+                    img.src = row.Image;
+                    img.alt = row.Name || "Preview image";
+                    img.className = "rounded-xl mb-4 max-h-64 object-cover w-full";
+                    card.appendChild(img);
+                }
+
+                // --- Tweet card (below text/link) ---
+                if (row.TweetLink) {
+                    const tweetWrapper = document.createElement("div");
+                    tweetWrapper.className = "tweet-container";
+
+                    const tweet = document.createElement("blockquote");
+                    tweet.className = "twitter-tweet";
+                    tweet.setAttribute("data-theme", "dark");
+
+                    const link = document.createElement("a");
+                    link.href = row.TweetLink;
+                    tweet.appendChild(link);
+
+                    tweetWrapper.appendChild(tweet);
+                    card.appendChild(tweetWrapper);
+
+                    if (window.twttr && window.twttr.widgets) {
+                        window.twttr.widgets.load(tweetWrapper);
+                    }
+                }
+
+                container.appendChild(card);
+            });
         }
 
         (async function init() {
