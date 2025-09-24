@@ -26,8 +26,32 @@
             align-items: center;
             text-align: center;
             align-self: flex-start;
-            padding: 1.5rem;
+            padding: 0.75rem;
+            /* smaller base padding for mobile (12px) */
         }
+
+        /* On medium screens and up, restore bigger padding */
+        @media (min-width: 640px) {
+            .card {
+                padding: 1.25rem;
+                /* 20px */
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .card {
+                padding: 1.5rem;
+                /* 24px */
+            }
+        }
+
+        /* Reduce spacing below images & tweets */
+        .card img,
+        .card .tweet-container {
+            margin-bottom: 0.75rem;
+            /* was 1rem+ */
+        }
+
 
         .card:hover {
             transform: translateY(-6px);
@@ -152,6 +176,20 @@
                     card.appendChild(img);
                 }
 
+                // --- ImageLink (new column) ---
+                if (row.ImageLink) {
+                    const imgWrapper = document.createElement("div");
+                    imgWrapper.className = "w-full flex justify-center mb-4";
+
+                    const img = document.createElement("img");
+                    img.src = row.ImageLink;
+                    img.alt = row.Name || "Linked image";
+                    img.className = "rounded-xl max-h-64 object-cover";
+
+                    imgWrapper.appendChild(img);
+                    card.appendChild(imgWrapper);
+                }
+
                 // --- Tweet card (below text/link) ---
                 if (row.TweetLink) {
                     const tweetWrapper = document.createElement("div");
@@ -184,6 +222,10 @@
             await renderCards(rows);
         })();
     </script>
+
+
+
+
 </body>
 
 </html>
