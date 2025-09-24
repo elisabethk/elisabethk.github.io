@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Twitter widgets script -->
     <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
     <style>
         body {
             background-color: #043217;
@@ -43,10 +44,16 @@
         /* Responsive tweet container */
         .tweet-container {
             width: 100%;
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
-            margin-top: 1rem;
-            /* space above tweet */
+        }
+
+        /* Expand tweets inside cards */
+        .card .tweet-container {
+            margin-left: -1rem;
+            margin-right: -1rem;
         }
 
         .tweet-container blockquote.twitter-tweet {
@@ -71,6 +78,7 @@
             margin: 0 auto;
         }
     </style>
+
 </head>
 
 <body class="min-h-screen p-6">
