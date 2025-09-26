@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Golden Orbs — Falling Streams</title>
+    <style>
+        :root {
+            --hunter-green: #062f26;
+            --gold1: #ffd966;
+            --gold2: #ffb800
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0
+        }
+
+        body {
+            background: var(--hunter-green);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+            color: rgba(255, 255, 255, 0.85)
+        }
+
+        canvas {
+            display: block
+        }
+
+        .info {
+            position: fixed;
+            left: 12px;
+            bottom: 12px;
+            font-size: 12px;
+            opacity: 0.7
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="c"></canvas>
+    <div class="info">Golden orbs • Streams • Slow fall — click to toggle motion</div>
+
+    <script>
+        const canvas = document.getElementById('c');
+        const ctx = canvas.getContext('2d');
+
+        let W = innerWidth, H = innerHeight;
+        canvas.width = W; canvas.height = H;
+
+        // Parameters (easy to tweak)
+        const STREAM_SPACING = 120;
+        const ORBS_PER_STREAM = 20;
+        const BASE_SPEED = 10;
+        const SIZE_MIN = 4;
+        const SIZE_MAX = 18;
+
+        let streams = [];
+        let running = true;
+
+        function rand(a, b) { return a + Math.random() * (b - a) }
+
+        function makeStreams() {
+            streams = [];
+            const streamCount = Math.max(2, Math.floor(W / STREAM_SPACING));
+            for (let i = 0; i < streamCount; i++) {
+                const x = (i + 0.5) * (W / streamCount) + rand(-16, 16);
+                const speedFactor = rand(0.6, 1.2);
+                const skew = rand(-0.6, 0.6);
+                const colorWarm = rand(0, 1) > 0.5;
+                const orbs = [];
+                for (let j = 0; j < ORBS_PER_STREAM; j++) {
+                    const t = j / ORBS_PER_STREAM;
+                    orbs.push({
+                        x: x + rand(-6, 6),
+                        y: rand(-H, H),
+                        radius: rand(SIZE_MIN, SIZE_MAX),
+                        speed: BASE_SPEED * speedFactor * rand(0.6, 1.4),
+                        drift: skew * rand(10, 40),
+                        phase: t * (H / (BASE_SPEED * speedFactor)),
+                        hueBias: colorWarm ? rand(-8, 8) : rand(-25, 8)
+                    });
+                }
+                streams.push({ x, orbs, skew });
+            }
+        }
+
+        function drawOrb(x, y, r, hueBias, alpha) {
+            // slightly softer glow than before
+            const g = ctx.createRadialGradient(x, y, 0, x, y, r * 2.5);
+            g.addColorStop(0, `rgba(255, 245, 200, ${Math.min(1, alpha * 1.2)})`);
+            g.addColorStop(0.25, `rgba(255, 215, 120, ${alpha})`);
+            g.addColorStop(0.55, `rgba(255, 170, 60, ${alpha * 0.7})`);
+            g.addColorStop(0.85, `rgba(200, 120, 30, ${alpha * 0.35})`);
+            g.addColorStop(1, `rgba(40,30,20,0)`);
+
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.shadowBlur = r * 2.5;
+            ctx.shadowColor = `rgba(255,210,120,${alpha * 0.6})`;
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        let last = performance.now();
+        function frame(now) {
+            const dt = (now - last) / 1000; last = now;
+            if (running) {
+                ctx.fillStyle = 'rgba(6,47,38,0.18)';
+                ctx.fillRect(0, 0, W, H);
+
+                for (const s of streams) {
+                    for (const orb of s.orbs) {
+                        orb.y += orb.speed * dt;
+                        orb.x += (orb.drift * dt) * 0.15;
+                        const wobble = Math.sin((now / 1000 + orb.phase) * 0.9 + orb.radius) * 6;
+                        const drawX = orb.x + wobble;
+                        const drawY = orb.y + Math.sin((now / 1000 + orb.phase) * 0.6) * 8;
+
+                        const edgeFade = Math.max(0, Math.min(1, 1 - (drawY / (H * 0.95))));
+                        const alpha = 0.3 + 0.9 * edgeFade * (orb.radius / SIZE_MAX);
+
+                        drawOrb(drawX, drawY, orb.radius, orb.hueBias, alpha);
+
+                        if (orb.y - orb.radius > H + 40) {
+                            orb.y = rand(-H * 0.5, -20);
+                            orb.x = s.x + rand(-12, 12);
+                            orb.radius = rand(SIZE_MIN, SIZE_MAX);
+                            orb.speed = BASE_SPEED * rand(0.6, 1.4);
+                            orb.phase = rand(0, H / BASE_SPEED);
+                        }
+                    }
+                }
+            }
+
+            requestAnimationFrame(frame);
+        }
+
+        ctx.fillStyle = getComputedStyle(document.body).backgroundColor;
+        ctx.fillRect(0, 0, W, H);
+
+        function resize() {
+            W = innerWidth; H = innerHeight;
+            canvas.width = W; canvas.height = H;
+            ctx.fillStyle = getComputedStyle(document.body).backgroundColor;
+            ctx.fillRect(0, 0, W, H);
+            makeStreams();
+        }
+        addEventListener('resize', resize);
+
+        addEventListener('pointerdown', () => running = !running);
+
+        makeStreams();
+        ctx.fillStyle = getComputedStyle(document.body).backgroundColor;
+        ctx.fillRect(0, 0, W, H);
+        requestAnimationFrame(frame);
+    </script>
+</body>
+
+</html>
